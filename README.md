@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img src="[assets/main_screen.png](https://github.com/user-attachments/assets/05e334fc-c120-441b-bc59-0e302aab0397)" width="600" title="ActiveRest Dashboard">
+  <img src="https://github.com/user-attachments/assets/05e334fc-c120-441b-bc59-0e302aab0397" width="600" title="ActiveRest Dashboard">
 </p>
  
 
