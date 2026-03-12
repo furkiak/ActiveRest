@@ -1,0 +1,30 @@
+ <Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ActiveRest.Views.NotificationWindow"
+        Width="320" Height="90"
+        SystemDecorations="None" 
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        Topmost="True" 
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual"
+        FontFamily="Segoe UI, Ubuntu, Arial">
+
+    <Border Background="#F5F5F7" 
+            CornerRadius="12" 
+            BorderBrush="#E5E5EA" 
+            BorderThickness="1" 
+            Margin="10" 
+            BoxShadow="0 4 20 0 #25000000">
+        
+        <Grid ColumnDefinitions="Auto, *" Margin="15,0">
+            <Path Grid.Column="0" Data="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" 
+                  Fill="#007AFF" Width="24" Height="24" Stretch="Uniform" VerticalAlignment="Center"/>
+            
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0">
+                <TextBlock Text="Rest your eyes" Foreground="#1D1D1F" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="You've been working for a long time." Foreground="#86868B" FontSize="12" Margin="0,2,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

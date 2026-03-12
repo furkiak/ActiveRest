@@ -1,0 +1,93 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ActiveRest.Views.SettingsWindow"
+        Title="Settings" Width="360" Height="420"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        WindowStartupLocation="CenterOwner"
+        RequestedThemeVariant="Light"
+        FontFamily="Segoe UI, Arial, sans-serif">
+
+    <Window.Styles>
+        <Style Selector="Button.CounterBtn">
+            <Setter Property="Background" Value="#E5E5EA"/><Setter Property="Foreground" Value="#1D1D1F"/>
+            <Setter Property="BorderThickness" Value="0"/><Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Width" Value="32"/><Setter Property="Height" Value="32"/>
+            <Setter Property="FontSize" Value="18"/><Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.CloseBtn">
+            <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="15"/><Setter Property="Width" Value="30"/><Setter Property="Height" Value="30"/>
+        </Style>
+        <Style Selector="Button.CloseBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E5E5EA"/>
+        </Style>
+    </Window.Styles>
+
+    <Border Background="#F5F5F7" CornerRadius="16" BorderBrush="#E5E5EA" BorderThickness="1" Margin="10" BoxShadow="0 8 32 0 #20000000">
+        <Grid RowDefinitions="Auto, *, Auto" Margin="25">
+            
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Application Settings" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
+                    <TextBlock Text="Personalize your preferences" FontSize="12" Foreground="#86868B"/>
+                </StackPanel>
+                
+                <Button Grid.Column="1" Classes="CloseBtn" Click="Cancel_Click" VerticalAlignment="Top">
+                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
+                          Fill="#86868B" Width="18" Height="18" Stretch="Uniform"/>
+                </Button>
+            </Grid>
+
+            <StackPanel Grid.Row="1" Spacing="25">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Eye Health Notice" FontSize="13" FontWeight="SemiBold" Foreground="#1D1D1F"/>
+                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
+                        <Grid ColumnDefinitions="*, Auto">
+                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                <Button Classes="CounterBtn" Content="-" Click="Minus_Click"/>
+                                <Border Background="#F5F5F7" CornerRadius="8" Width="90" Height="32">
+                                    <TextBlock Name="IntervalValueText" Text="20 Minute" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                                </Border>
+                                <Button Classes="CounterBtn" Content="+" Click="Plus_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Spacing="10">
+                    <TextBlock Text="System Preferences" FontSize="13" FontWeight="SemiBold" Foreground="#1D1D1F"/>
+                    <Border Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBlock Text="Start with Windows" VerticalAlignment="Center" Foreground="#86868B" FontSize="12"/>
+                            <CheckBox Name="AutoStartCheck" Grid.Column="1" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <Button Grid.Row="2" Content="Save Changes" Click="Save_Click" 
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
+                    Padding="14" CornerRadius="10" FontWeight="Bold" Margin="0,10,0,0">
+                <Button.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="Background" Value="#2C2C2E"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Transitions">
+                            <Transitions>
+                                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                            </Transitions>
+                        </Setter>
+                    </Style>
+                    <Style Selector="Button:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#1D1D1F"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </Style>
+                </Button.Styles>
+            </Button>
+
+        </Grid>
+    </Border>
+</Window>

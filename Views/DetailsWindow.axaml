@@ -1,0 +1,138 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ActiveRest.ViewModels"
+        xmlns:models="using:ActiveRest.Models"
+        x:Class="ActiveRest.Views.DetailsWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Detailed Analysis"
+        Width="460" Height="620"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        WindowStartupLocation="CenterOwner"
+        RequestedThemeVariant="Light"
+        FontFamily="Segoe UI, Ubuntu, Arial">
+
+    <Border Background="#F5F5F7" 
+            CornerRadius="16" 
+            BorderBrush="#E5E5EA" 
+            BorderThickness="1" 
+            Margin="10" 
+            BoxShadow="0 8 32 0 #20000000">
+        
+        <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="25">
+            
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Detailed Analysis" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
+                    <TextBlock Text="Device usage summary and detailed application report" FontSize="12" Foreground="#86868B"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Click="Close_Click">
+                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
+                          Fill="#86868B" Width="18" Height="18" Stretch="Uniform"/>
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="#E5E5EA"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </Grid>
+
+            <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="12" Padding="20" Margin="0,0,0,15" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
+                <StackPanel Spacing="15">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <TextBlock Grid.Column="0" Text="Total Session Duration" FontWeight="SemiBold" Foreground="#86868B"/>
+                        <TextBlock Grid.Column="1" Text="{Binding TotalUptimeText}" FontWeight="Bold" FontSize="14" Foreground="#1D1D1F" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Border CornerRadius="6" Height="12" ClipToBounds="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding ChartFocusWidth}" />
+                                <ColumnDefinition Width="{Binding ChartRelaxWidth}" />
+                                <ColumnDefinition Width="{Binding ChartBreakWidth}" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#2C2C2E" /> 
+                            <Border Grid.Column="1" Background="#8E8E93" /> 
+                            <Border Grid.Column="2" Background="#D1D1D6" /> 
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Spacing="10" Margin="0,5,0,0">
+                        <Grid ColumnDefinitions="Auto, *, Auto">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
+                                <Ellipse Width="10" Height="10" Fill="#2C2C2E" VerticalAlignment="Center"/>
+                                <TextBlock Text="Focused Work" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding FocusStatText}" Foreground="#86868B" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *, Auto">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
+                                <Ellipse Width="10" Height="10" Fill="#8E8E93" VerticalAlignment="Center"/>
+                                <TextBlock Text="Comfortable Working" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding RelaxStatText}" Foreground="#86868B" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto, *, Auto">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
+                                <Ellipse Width="10" Height="10" Fill="#D1D1D6" VerticalAlignment="Center"/>
+                                <TextBlock Text="Rest" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding BreakStatText}" Foreground="#86868B" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding AppUsageList}" Margin="15,10">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:AppUsageItem">
+                                <Border BorderBrush="#F5F5F7" BorderThickness="0,0,0,1" Padding="0,10">
+                                    <Grid ColumnDefinitions="*, Auto, Auto">
+                                        <StackPanel Orientation="Horizontal" Grid.Column="0" Spacing="10">
+                                            <TextBlock Text="▪" Foreground="#D1D1D6" VerticalAlignment="Center" FontSize="16"/>
+                                            <TextBlock Text="{Binding AppName}" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding DurationText}" Foreground="#2C2C2E" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <Border Grid.Column="2" Background="#F5F5F7" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding PercentageText}" Foreground="#86868B" FontSize="11" FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <Grid Grid.Row="3" ColumnDefinitions="*" Margin="0,20,0,0">
+                <Button Content="Create PDF Report 📄" Click="ExportToPdf_Click" 
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
+                        Padding="14" CornerRadius="10" FontWeight="Bold" FontSize="13">
+                    <Button.Styles>
+                        <Style Selector="Button">
+                            <Setter Property="Background" Value="#F5F5F7"/>
+                            <Setter Property="Foreground" Value="#1D1D1F"/>
+                            <Setter Property="BorderBrush" Value="#E5E5EA"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Transitions">
+                                <Transitions>
+                                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                                </Transitions>
+                            </Setter>
+                        </Style>
+                        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                            <Setter Property="Background" Value="#2C2C2E"/>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </Grid>
+
+        </Grid>
+    </Border>
+</Window>

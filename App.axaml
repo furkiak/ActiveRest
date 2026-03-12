@@ -1,0 +1,29 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ActiveRest.App"
+             xmlns:local="using:ActiveRest"
+             RequestedThemeVariant="Default">
+           
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+
+<TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/avalonia-logo.ico" ToolTipText="ActiveRest Çalýþýyor" Clicked="TrayIcon_Clicked">
+     <TrayIcon.Menu>
+        <NativeMenu>
+          <NativeMenuItem Header="Open the Application" Click="TrayShow_Click" />
+          <NativeMenuItemSeparator />
+          <NativeMenuItem Header="Safe Exit" Click="TrayExit_Click" />
+        </NativeMenu>
+      </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+
+</Application>
