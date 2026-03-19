@@ -1,21 +1,15 @@
 # 🎯 ActiveRest
 
-<p align="center">
-  <img src="https://img.shields.io/badge/.NET-9.0-512bd4?style=for-the-badge&logo=dotnet" alt=".NET 9" />
-  <img src="https://img.shields.io/badge/Platform-Windows-0078d7?style=for-the-badge&logo=windows" alt="Platform" />
-  <img src="https://img.shields.io/badge/UI-Avalonia-ed2e26?style=for-the-badge" alt="UI" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
-</p>
+![Platform](https://img.shields.io/badge/Platform-Windows-0078d7)
+![Framework](https://img.shields.io/badge/Framework-.NET%20Core%20%7C%20Avalonia%20UI-512BD4)
+![Architecture](https://img.shields.io/badge/Architecture-MVVM-success)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/05e334fc-c120-441b-bc59-0e302aab0397" width="600" title="ActiveRest Dashboard">
+  <img src="https://raw.githubusercontent.com/furkiak/ActiveRest/refs/heads/main/SS.png" width="600" title="ActiveRest Dashboard">
 </p>
  
-
-
-## 🌐 English Description
-
-**ActiveRest** is a premium, minimalist productivity and ergonomic health suite designed for professionals who demand high performance and well-being. Built with an executive "Mac-style" aesthetic for the Windows environment, it provides a seamless interface to monitor, analyze, and optimize your work habits without intrusive distractions.
+**ActiveRest** is a premium, minimalist productivity and ergonomic health suite designed for professionals who demand high performance and well-being. Built with an executive business aesthetic for the Windows environment, it provides a seamless interface to monitor, analyze, and optimize your work habits without intrusive distractions.
 
 ### 🚀 Key Value Propositions
 
@@ -43,7 +37,7 @@ ActiveRest is engineered with the latest .NET ecosystem to ensure high performan
 
 ## 🇹🇷 Türkçe Açıklama
 
-**ActiveRest**, yüksek performans ve sağlık dengesini gözeten profesyoneller için tasarlanmış, minimalist ve üst düzey bir verimlilik takip paketidir. Windows ekosistemi için "Mac tarzı" bir yönetici estetiğiyle geliştirilen uygulama; çalışma alışkanlıklarınızı izlemek, analiz etmek ve optimize etmek için profesyonel bir arayüz sunar.
+**ActiveRest**, yüksek performans ve sağlık dengesini gözeten profesyoneller için tasarlanmış, minimalist ve üst düzey bir verimlilik takip paketidir. Windows ekosistemi için profesyonel bir yönetici estetiğiyle geliştirilen uygulama; çalışma alışkanlıklarınızı izlemek, analiz etmek ve optimize etmek için profesyonel bir arayüz sunar.
 
 ### 🚀 Temel Değer Teklifleri
 
