@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using System;
 using System.Threading.Tasks;
+using ActiveRest.ViewModels;
 
 namespace ActiveRest.Views
 {
@@ -59,7 +60,7 @@ namespace ActiveRest.Views
         private async void OpenSettings_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             _isModalOpen = true;
-            var settingsWin = new SettingsWindow();
+            var settingsWin = new SettingsWindow((MainWindowViewModel)DataContext!);
             await settingsWin.ShowDialog(this);
             _isModalOpen = false; 
         }

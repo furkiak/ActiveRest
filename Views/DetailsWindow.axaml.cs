@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Avalonia.Platform.Storage;
 
 namespace ActiveRest.Views
 {
@@ -18,25 +19,27 @@ namespace ActiveRest.Views
         {
             this.Close();
         }
-        private void ExportToPdf_Click(object? sender, RoutedEventArgs e)
+        private async void ExportToPdf_Click(object? sender, RoutedEventArgs e)
         {
             if (this.DataContext is MainWindowViewModel vm)
             {
                 try
                 {
-                    string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                    string fileName = $"ActiveRest_Report_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-                    string fullPath = Path.Combine(desktopPath, fileName);
-                     
+                    var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+                    {
+                        Title = "Export activity summary",
+                        SuggestedFileName = $"ActiveRest-activity-{DateTime.Now:yyyyMMdd}.pdf",
+                        DefaultExtension = "pdf"
+                    });
+                    if (file == null) return;
+                    vm.ForceSave();
                     var pdfService = new ActiveRest.Services.PdfExportService();
-                    pdfService.ExportReport(vm, fullPath);
-                     
-                    Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
-
+                    pdfService.ExportReport(vm, file.Path.LocalPath);
+                    this.FindControl<TextBlock>("ExportFeedbackText")!.Text = "PDF saved to your chosen location.";
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error-10: " + ex.Message);
+                    this.FindControl<TextBlock>("ExportFeedbackText")!.Text = $"PDF export failed: {ex.Message}";
                 }
             }
         }

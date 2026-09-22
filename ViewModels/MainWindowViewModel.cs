@@ -9,10 +9,11 @@ using ActiveRest.Models;
 
 namespace ActiveRest.ViewModels
 {
-    public partial class MainWindowViewModel : ObservableObject
+    public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         private readonly TrackerEngine _engine;
         private readonly DataManager _dataManager;
+        private readonly DispatcherTimer _uiTimer;
 
         [ObservableProperty] private string _currentModeText = "Today";
 
@@ -37,34 +38,48 @@ namespace ActiveRest.ViewModels
         [ObservableProperty] private string _breakStatText = "%0 (00h 00m)";
 
         [ObservableProperty] private DateTimeOffset? _selectedDate = DateTimeOffset.Now;
+        [ObservableProperty] private string _trackingStatusText = "Tracking locally";
+        [ObservableProperty] private string _pauseButtonText = "Pause tracking";
+        [ObservableProperty] private string _dataStatusText = "";
         private string _currentMode = "Daily";
+        private bool _followToday = true;
 
         public MainWindowViewModel()
         {
             var tracker = new WindowsActivityTracker();
             _dataManager = new DataManager();
             _engine = new TrackerEngine(tracker, _dataManager);
+            _engine.RestReminderDue += () => Dispatcher.UIThread.Post(() => new Views.NotificationWindow().Show());
+            _engine.TrackingFailed += ex => Dispatcher.UIThread.Post(() =>
+            {
+                TrackingStatusText = "Tracking paused after an error";
+                DataStatusText = $"Could not save local activity: {ex.Message}";
+                PauseButtonText = "Resume tracking";
+            });
             _engine.StartTracking();
+            if (!_dataManager.CanWrite)
+            {
+                TrackingStatusText = "Tracking paused · history needs recovery";
+                DataStatusText = _dataManager.RecoveryNotice ?? "History needs recovery.";
+            }
+            else if (_dataManager.RecoveryNotice != null) DataStatusText = _dataManager.RecoveryNotice;
 
-            var uiTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            uiTimer.Tick += UpdateUI;
-            uiTimer.Start();
+            _uiTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _uiTimer.Tick += UpdateUI;
+            _uiTimer.Start();
             if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.Exit += (s, e) => ForceSave();
+                desktop.Exit += (s, e) => Dispose();
             }
         }
 
         partial void OnSelectedDateChanged(DateTimeOffset? value)
         {
-            _currentMode = "Daily";
-            DailyButtonColor = "#FFFFFF"; WeeklyButtonColor = "Transparent";
-            MonthlyButtonColor = "Transparent"; YearlyButtonColor = "Transparent";
-
+            _followToday = value.HasValue && value.Value.Date == DateTime.Today;
             if (value.HasValue && value.Value.Date == DateTime.Today)
-                CurrentModeText = "Today";
+                CurrentModeText = _currentMode == "Daily" ? "Today" : CurrentModeText;
             else
-                CurrentModeText = $"{value?.ToString("dd MMM yyyy")} Statistics";
+                CurrentModeText = $"{value?.ToString("dd MMM yyyy")} · {_currentMode}";
 
             CalculateStats();
         }
@@ -89,15 +104,17 @@ namespace ActiveRest.ViewModels
 
         private void UpdateUI(object? sender, EventArgs e)
         {
+            if (_followToday && SelectedDate?.Date != DateTime.Today)
+            {
+                SelectedDate = DateTimeOffset.Now;
+            }
             if (_currentMode == "Daily" && SelectedDate.HasValue && SelectedDate.Value.Date == DateTime.Today)
             {
-                if (_engine.CurrentDayStat != null)
-                {
-                    FocusedTimeText = FormatTime(_engine.CurrentDayStat.TotalFocusedSeconds);
-                    RelaxedTimeText = FormatTime(_engine.CurrentDayStat.TotalRelaxedSeconds);
-                    BreakTimeText = FormatTime(_engine.CurrentDayStat.TotalBreakSeconds);
-                    UpdateDetailsData(new List<DailyStat> { _engine.CurrentDayStat });
-                }
+                var today = _engine.GetCurrentSnapshot();
+                FocusedTimeText = FormatTime(today.TotalFocusedSeconds);
+                RelaxedTimeText = FormatTime(today.TotalRelaxedSeconds);
+                BreakTimeText = FormatTime(today.TotalBreakSeconds);
+                UpdateDetailsData(new List<DailyStat> { today });
             }
         }
 
@@ -105,9 +122,6 @@ namespace ActiveRest.ViewModels
         {
             try
             {
-                if (_engine.CurrentDayStat != null)
-                    _dataManager.SaveOrUpdateToday(_engine.CurrentDayStat);
-
                 if (_currentMode == "Daily" && SelectedDate.HasValue && SelectedDate.Value.Date == DateTime.Today)
                 {
                     UpdateUI(null, EventArgs.Empty);
@@ -115,6 +129,9 @@ namespace ActiveRest.ViewModels
                 }
 
                 var allData = _dataManager.LoadAllData();
+                var liveToday = _engine.GetCurrentSnapshot();
+                allData.RemoveAll(d => d.Date.Date == liveToday.Date.Date);
+                allData.Add(liveToday);
                 DateTime targetDate = SelectedDate?.Date ?? DateTime.Today;
                 List<DailyStat> filteredData = new List<DailyStat>();
 
@@ -122,8 +139,10 @@ namespace ActiveRest.ViewModels
                 {
                     case "Daily": filteredData = allData.Where(d => d.Date.Date == targetDate).ToList(); break;
                     case "Weekly":
-                        DateTime startOfWeek = targetDate.AddDays(-(int)targetDate.DayOfWeek + (int)DayOfWeek.Monday);
-                        filteredData = allData.Where(d => d.Date >= startOfWeek && d.Date < startOfWeek.AddDays(7)).ToList();
+                        var settings = _dataManager.LoadSettings();
+                        DateTime startOfWeek = WeekMath.StartOfWeek(targetDate,
+                            settings.WeekStartsOnSunday ? DayOfWeek.Sunday : DayOfWeek.Monday);
+                        filteredData = allData.Where(d => d.Date.Date >= startOfWeek && d.Date.Date < startOfWeek.AddDays(7)).ToList();
                         break;
                     case "Monthly": filteredData = allData.Where(d => d.Date.Year == targetDate.Year && d.Date.Month == targetDate.Month).ToList(); break;
                     case "Yearly": filteredData = allData.Where(d => d.Date.Year == targetDate.Year).ToList(); break;
@@ -142,10 +161,51 @@ namespace ActiveRest.ViewModels
         }
         public void ForceSave()
         {
-            if (_engine?.CurrentDayStat != null && _dataManager != null)
+            if (_dataManager.CanWrite) _engine.SaveSnapshot();
+        }
+        public void ReloadSettings()
+        {
+            _engine.ApplySettings(_dataManager.LoadSettings());
+            CalculateStats();
+        }
+
+        [RelayCommand]
+        private void TogglePause()
+        {
+            if (!_engine.IsRunning) return;
+            if (_engine.IsPaused)
             {
-                _dataManager.SaveOrUpdateToday(_engine.CurrentDayStat);
+                _engine.Resume();
+                TrackingStatusText = "Tracking locally";
+                PauseButtonText = "Pause tracking";
             }
+            else
+            {
+                _engine.Pause();
+                TrackingStatusText = "Tracking paused";
+                PauseButtonText = "Resume tracking";
+            }
+        }
+
+        public void ExportHistory(string path)
+        {
+            if (_dataManager.CanWrite) _engine.SaveSnapshot();
+            _dataManager.ExportAllData(path);
+        }
+        public void DeleteHistory()
+        {
+            _engine.DeleteHistory();
+            if (!_engine.IsRunning) _engine.StartTracking();
+            DataStatusText = "Local history deleted.";
+            CalculateStats();
+        }
+        public string DataFolder => _dataManager.DataFolder;
+
+        public void Dispose()
+        {
+            _uiTimer.Stop();
+            if (_engine.IsRunning && _dataManager.CanWrite) _engine.StopTracking();
+            else if (_engine.IsRunning) _engine.Dispose();
         }
         private void UpdateDetailsData(List<DailyStat> stats)
         {

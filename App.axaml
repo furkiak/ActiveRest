@@ -14,7 +14,7 @@
 
 <TrayIcon.Icons>
     <TrayIcons>
-      <TrayIcon Icon="/Assets/avalonia-logo.ico" ToolTipText="ActiveRest Çalýþýyor" Clicked="TrayIcon_Clicked">
+      <TrayIcon Icon="/Assets/avalonia-logo.ico" ToolTipText="ActiveRest Ã‡alÄ±ÅŸÄ±yor" Clicked="TrayIcon_Clicked">
      <TrayIcon.Menu>
         <NativeMenu>
           <NativeMenuItem Header="Open the Application" Click="TrayShow_Click" />

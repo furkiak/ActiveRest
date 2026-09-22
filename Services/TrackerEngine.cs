@@ -1,97 +1,238 @@
-﻿using ActiveRest.Models;
+using ActiveRest.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 
-namespace ActiveRest.Services
-{
-    public class TrackerEngine
-    {
-        private readonly IActivityTracker _activityTracker;
-        private readonly DataManager _dataManager;
-        private Timer _timer;
-        private byte ModeTime =5;
-        public DailyStat CurrentDayStat { get; private set; }
-        private int _continuousFocusSeconds = 0;  
-        private AppSettings _settings;
-        public TrackerEngine(IActivityTracker activityTracker, DataManager dataManager)
-        {
-            _activityTracker = activityTracker;
-            _dataManager = dataManager;
-            _settings = _dataManager.LoadSettings(); 
-            LoadTodayStat();
-        }
+namespace ActiveRest.Services;
 
-        private void LoadTodayStat()
+public sealed class TrackerEngine : IDisposable
+{
+    private const double MaxObservedGapSeconds = 5;
+    private readonly object _gate = new();
+    private readonly IActivityTracker _activityTracker;
+    private readonly DataManager _dataManager;
+    private readonly TimeProvider _clock;
+    private Timer? _timer;
+    private DailyStat _currentDay;
+    private AppSettings _settings;
+    private long _lastTimestamp;
+    private DateTime _lastLocalTime;
+    private double _focusSinceReminder;
+    private double _secondsSinceSave;
+    private bool _running;
+    private bool _paused;
+
+    public event Action? RestReminderDue;
+    public event Action<Exception>? TrackingFailed;
+
+    public TrackerEngine(IActivityTracker activityTracker, DataManager dataManager, TimeProvider? clock = null)
+    {
+        _activityTracker = activityTracker;
+        _dataManager = dataManager;
+        _clock = clock ?? TimeProvider.System;
+        _settings = _dataManager.LoadSettings();
+        _currentDay = LoadDay(_clock.GetLocalNow().DateTime.Date);
+    }
+
+    public DailyStat CurrentDayStat => GetCurrentSnapshot();
+    public bool IsPaused { get { lock (_gate) return _paused; } }
+    public bool IsRunning { get { lock (_gate) return _running; } }
+
+    public DailyStat GetCurrentSnapshot()
+    {
+        lock (_gate) return _currentDay.Copy();
+    }
+
+    public void StartTracking()
+    {
+        lock (_gate)
         {
-            var allData = _dataManager.LoadAllData(); 
-            CurrentDayStat = allData.Find(d => d.Date.Date == DateTime.Today.Date) ?? new DailyStat();
-        }
-        
-        public void StartTracking()
-        {
-            _timer = new Timer(1000);  
+            if (_running || !_dataManager.CanWrite) return;
+            _running = true;
+            _paused = false;
+            ResetClock();
+            _timer = new Timer(1000) { AutoReset = false };
             _timer.Elapsed += OnTimerElapsed;
             _timer.Start();
         }
+    }
 
-        private void OnTimerElapsed(object sender, ElapsedEventArgs e)
+    public void StopTracking()
+    {
+        lock (_gate)
         {
-            try
+            if (!_running) return;
+            _running = false;
+            _timer?.Stop();
+            _timer?.Dispose();
+            _timer = null;
+            _dataManager.SaveOrUpdateToday(_currentDay);
+        }
+    }
+
+    public void Pause()
+    {
+        lock (_gate)
+        {
+            if (!_running || _paused) return;
+            _paused = true;
+            _focusSinceReminder = 0;
+            _dataManager.SaveOrUpdateToday(_currentDay);
+        }
+    }
+
+    public void Resume()
+    {
+        lock (_gate)
+        {
+            if (!_running || !_paused) return;
+            _paused = false;
+            ResetClock();
+        }
+    }
+
+    public void ApplySettings(AppSettings settings)
+    {
+        if (settings.EyeRestIntervalMinutes is < 5 or > 120)
+            throw new ArgumentOutOfRangeException(nameof(settings));
+        lock (_gate)
+        {
+            _settings = new AppSettings
             {
-                if (DateTime.Today != CurrentDayStat.Date.Date)
-                {
-                    LoadTodayStat();
-                }
+                EyeRestIntervalMinutes = settings.EyeRestIntervalMinutes,
+                IsEyeRestEnabled = settings.IsEyeRestEnabled
+            };
+            if (!_settings.IsEyeRestEnabled) _focusSinceReminder = 0;
+        }
+    }
 
-                double idleTime = _activityTracker.GetIdleTimeSeconds();
-                bool isMediaPlaying = _activityTracker.IsMediaPlaying();
+    public void SaveSnapshot()
+    {
+        lock (_gate) _dataManager.SaveOrUpdateToday(_currentDay);
+    }
 
-                if (idleTime < 180)
-                {
-                    CurrentDayStat.TotalFocusedSeconds++;
-                    _continuousFocusSeconds++;  
-                     
-                    string activeApp = _activityTracker.GetActiveAppName();
-                    if (CurrentDayStat.AppUsageSeconds.ContainsKey(activeApp))
-                        CurrentDayStat.AppUsageSeconds[activeApp]++;
-                    else
-                        CurrentDayStat.AppUsageSeconds.Add(activeApp, 1);
-                     
-                    if (_settings.IsEyeRestEnabled && _continuousFocusSeconds >= (_settings.EyeRestIntervalMinutes * 60))
-                    { 
-                        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                        {
-                            var toast = new Views.NotificationWindow();
-                            toast.Show();
-                        });
+    public void DeleteHistory()
+    {
+        lock (_gate)
+        {
+            _dataManager.DeleteAllData();
+            _currentDay = new DailyStat();
+            _focusSinceReminder = 0;
+            _secondsSinceSave = 0;
+            ResetClock();
+        }
+    }
 
-                        _continuousFocusSeconds = 0;  
-                    }
-                }
-                else if (idleTime >= 180 && isMediaPlaying)
+    // Public for deterministic tests and explicit sampling; the timer uses the same path.
+    public void RecordSample()
+    {
+        bool remind = false;
+        lock (_gate)
+        {
+            if (!_running) return;
+            var now = _clock.GetLocalNow().DateTime;
+            var timestamp = _clock.GetTimestamp();
+            var elapsed = _clock.GetElapsedTime(_lastTimestamp, timestamp).TotalSeconds;
+            var previous = _lastLocalTime;
+            _lastTimestamp = timestamp;
+            _lastLocalTime = now;
+
+            if (_paused || !_dataManager.CanWrite) return;
+            if (elapsed <= 0 || elapsed > MaxObservedGapSeconds ||
+                Math.Abs((now - previous).TotalSeconds - elapsed) > 2)
+            {
+                if (now.Date != _currentDay.Date.Date) RotateDay(now.Date);
+                return;
+            }
+
+            var idle = _activityTracker.GetIdleTimeSeconds();
+            var category = idle < 180 ? 0 : _activityTracker.IsMediaPlaying() ? 1 : 2;
+            var appName = category == 0 ? _activityTracker.GetActiveAppName() : null;
+            if (string.IsNullOrWhiteSpace(appName)) appName = "Unknown";
+
+            if (now.Date != _currentDay.Date.Date)
+            {
+                if (previous.Date == _currentDay.Date.Date && now.Date == previous.Date.AddDays(1))
                 {
-                    CurrentDayStat.TotalRelaxedSeconds++;
-                    _continuousFocusSeconds = 0;  
+                    var beforeMidnight = Math.Clamp((previous.Date.AddDays(1) - previous).TotalSeconds, 0, elapsed);
+                    remind |= AddDuration(category, appName, beforeMidnight);
+                    RotateDay(now.Date);
+                    remind |= AddDuration(category, appName, elapsed - beforeMidnight);
                 }
                 else
                 {
-                    CurrentDayStat.TotalBreakSeconds++;
-                    _continuousFocusSeconds = 0;  
-                }
-
-                if ((CurrentDayStat.TotalFocusedSeconds + CurrentDayStat.TotalRelaxedSeconds + CurrentDayStat.TotalBreakSeconds) % 60 == 0)
-                {
-                    _dataManager.SaveOrUpdateToday(CurrentDayStat);
+                    RotateDay(now.Date);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error-6: {ex.Message}");
+                remind = AddDuration(category, appName, elapsed);
+            }
+
+            if (_secondsSinceSave >= 60)
+            {
+                _dataManager.SaveOrUpdateToday(_currentDay);
+                _secondsSinceSave = 0;
             }
         }
+        if (remind) RestReminderDue?.Invoke();
     }
+
+    private bool AddDuration(int category, string appName, double seconds)
+    {
+        if (seconds <= 0) return false;
+        _secondsSinceSave += seconds;
+        if (category == 0)
+        {
+            _currentDay.TotalFocusedSeconds += seconds;
+            _currentDay.AppUsageSeconds.TryGetValue(appName, out var usage);
+            _currentDay.AppUsageSeconds[appName] = usage + seconds;
+            _focusSinceReminder += seconds;
+            if (_settings.IsEyeRestEnabled && _focusSinceReminder >= _settings.EyeRestIntervalMinutes * 60)
+            {
+                _focusSinceReminder %= _settings.EyeRestIntervalMinutes * 60;
+                return true;
+            }
+        }
+        else
+        {
+            if (category == 1) _currentDay.TotalRelaxedSeconds += seconds;
+            else _currentDay.TotalBreakSeconds += seconds;
+            _focusSinceReminder = 0;
+        }
+        return false;
+    }
+
+    private void RotateDay(DateTime date)
+    {
+        _dataManager.SaveOrUpdateToday(_currentDay);
+        _currentDay = LoadDay(date);
+        _secondsSinceSave = 0;
+    }
+
+    private DailyStat LoadDay(DateTime date) =>
+        _dataManager.LoadAllData().FirstOrDefault(d => d.Date.Date == date) ??
+        new DailyStat { Date = date, FirstBootTime = _clock.GetLocalNow().DateTime };
+
+    private void ResetClock()
+    {
+        _lastTimestamp = _clock.GetTimestamp();
+        _lastLocalTime = _clock.GetLocalNow().DateTime;
+    }
+
+    private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        try { RecordSample(); }
+        catch (Exception exception)
+        {
+            lock (_gate) _paused = true;
+            TrackingFailed?.Invoke(exception);
+        }
+        finally
+        {
+            lock (_gate) { if (_running) _timer?.Start(); }
+        }
+    }
+
+    public void Dispose() => StopTracking();
 }

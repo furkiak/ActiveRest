@@ -18,5 +18,15 @@ namespace ActiveRest.Models
             FirstBootTime = DateTime.Now;
             AppUsageSeconds = new Dictionary<string, double>();  
         }
+
+        public DailyStat Copy() => new()
+        {
+            Date = Date,
+            FirstBootTime = FirstBootTime,
+            TotalFocusedSeconds = TotalFocusedSeconds,
+            TotalRelaxedSeconds = TotalRelaxedSeconds,
+            TotalBreakSeconds = TotalBreakSeconds,
+            AppUsageSeconds = new Dictionary<string, double>(AppUsageSeconds)
+        };
     }
 }

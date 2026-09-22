@@ -1,66 +1,55 @@
-# 🎯 ActiveRest
+# ActiveRest
 
-![Platform](https://img.shields.io/badge/Platform-Windows-0078d7)
-![Framework](https://img.shields.io/badge/Framework-.NET%20Core%20%7C%20Avalonia%20UI-512BD4)
-![Architecture](https://img.shields.io/badge/Architecture-MVVM-success)
-![License](https://img.shields.io/badge/License-MIT-blue)
+**A local activity timer for Windows.** ActiveRest shows how much observed time your device spent active, idle with audio output, or idle without it. It displays foreground process totals, offers a configurable break reminder, and exports a PDF or JSON report. Built with C# 13, .NET 9 and Avalonia 11.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/furkiak/ActiveRest/refs/heads/main/SS.png" width="600" title="ActiveRest Dashboard">
-</p>
- 
-**ActiveRest** is a premium, minimalist productivity and ergonomic health suite designed for professionals who demand high performance and well-being. Built with an executive business aesthetic for the Windows environment, it provides a seamless interface to monitor, analyze, and optimize your work habits without intrusive distractions.
+![ActiveRest workflow diagram, not a screenshot](docs/workflow.svg)
 
-### 🚀 Key Value Propositions
+> Preview: the source and automated tests build on Windows, but the revised interface has not yet been exercised in a native UI session or on a clean user machine. The diagram explains the workflow; it is not a product screenshot.
 
-* **Intelligent Activity Classification:** Automatically categorizes your sessions into **Deep Focus**, **Relaxed Media**, or **Break** states by monitoring system telemetry and real-time audio streams.
-* **Application Analytics:** Provides a surgical breakdown of time spent per application, complete with percentage-based efficiency metrics to identify focus leaks.
-* **Executive PDF Reporting:** Generates high-fidelity, paginated **PDF Executive Reports**, transforming raw activity data into professional insights for documentation.
-* **Ergonomic Guardrails:** Implements the **20-20-20 rule** through subtle, professional notifications that mitigate digital eye strain and mental fatigue.
-* **Premium User Experience:** Features a frameless, "Carbon & Silver" themed UI, system tray integration, and persistent configuration management.
+## Try it
 
-### 🛠 Technical Specifications
+Requires Windows with the .NET 9 SDK for source builds. From the repository root:
 
-ActiveRest is engineered with the latest .NET ecosystem to ensure high performance and low system resource consumption.
+```powershell
+dotnet run --project ActiveRest.csproj
+```
 
-* **Core Framework:** **.NET 9.0** — Leveraging the latest runtime performance and C# 13 features.
-* **UI Architecture:** **Avalonia UI** — Utilizing a cross-platform XAML framework for a custom-rendered, frameless interface.
-* **Design Pattern:** **MVVM** — Implemented via **CommunityToolkit.Mvvm** for a clean, reactive architecture.
-* **System Telemetry:** Deep integration via **P/Invoke** to monitor user input idle time (Win32 API).
-* **Audio Intelligence:** Monitoring Windows session audio states via **Core Audio APIs** for automated mode switching.
-* **Reporting Engine:** **QuestPDF** — A modern, layout-based engine for high-quality PDF generation.
-* **Data Persistence:** **Newtonsoft.Json** — Fast, file-based structured data storage.
+The app starts tracking when opened. Use **Pause tracking** in the main window to stop counting time. **Settings** offers the reminder interval, Monday/Sunday week start, Windows auto-start, **Export JSON**, **Open folder**, and **Delete history**. The tray menu can reopen or exit the app. `dotnet test ActiveRest.Tests/ActiveRest.Tests.csproj -c Release` runs the behavior tests.
 
+There is no current public installer for this revision. A source build is the reproducible path until the Windows release package passes a clean-machine UI check. Do not interpret an older ZIP or image as this revision.
 
+## How the numbers are calculated
 
----
+| Display | Current rule |
+| --- | --- |
+| Focused work | Input idle time is under 180 seconds. The foreground **process name** receives the observed duration. |
+| Comfortable working | Input has been idle for at least 180 seconds while the default output device's audio peak is above a threshold. This is an audio activity heuristic, not proof that media is playing. |
+| Rest | Input has been idle for at least 180 seconds and the audio heuristic is false. |
 
-## 🇹🇷 Türkçe Açıklama
+Elapsed time between ordinary samples is measured rather than assuming every timer callback represents exactly one second. Unobserved gaps longer than five seconds, including sleep and long stalls, are **excluded**, so totals can be lower than wall-clock time. A sample crossing local midnight is split between days; the previous day is saved first. The weekly view uses Monday by default, with a Sunday preference. A reminder is based on consecutive observed focus time and does not diagnose or prevent eye strain.
 
-**ActiveRest**, yüksek performans ve sağlık dengesini gözeten profesyoneller için tasarlanmış, minimalist ve üst düzey bir verimlilik takip paketidir. Windows ekosistemi için profesyonel bir yönetici estetiğiyle geliştirilen uygulama; çalışma alışkanlıklarınızı izlemek, analiz etmek ve optimize etmek için profesyonel bir arayüz sunar.
+## Privacy and data control
 
-### 🚀 Temel Değer Teklifleri
+ActiveRest runs locally and has no account, analytics service, or upload path in this source. It reads the foreground process name, Windows input idle duration and output-device audio peak. It does **not** read window titles, keystrokes, screenshots, microphone input, or audio content. Process names can still reveal personal behavior; treat exported files as private.
 
-* **Akıllı Aktivite Sınıflandırma:** Sistem telemetrisini ve ses akışlarını izleyerek oturumlarınızı otomatik olarak **Derin Odak**, **Rahat Mod** veya **Mola** durumlarına ayırır.
-* **Uygulama Analitiği:** Odak kayıplarını tespit etmek için her uygulamada harcanan süreyi, yüzde bazlı verimlilik metrikleriyle birlikte detaylı bir şekilde dökümler.
-* **PDF Yönetici Raporları:** Ham verileri profesyonel dökümantasyon için anlamlı çıktılara dönüştürerek, yüksek kaliteli ve çok sayfalı **PDF raporları** oluşturur.
-* **Ergonomik Koruma:** Dijital göz yorgunluğunu ve zihinsel tükenmişliği azaltmak için **20-20-20 kuralını**, profesyonel bildirimlerle uygular.
-* **Premium Kullanıcı Deneyimi:** Çerçevesiz "Karbon ve Gümüş" temalı arayüz, sistem tepsisi (tray) entegrasyonu ve kalıcı ayar yönetimi.
+Daily duration totals and process names are kept in `%APPDATA%\ActiveRest\stats.json`; the previous valid write is in `stats.json.bak`. Reminder and week settings are in `settings.json`. Data remains until you delete it. The app saves about once per observed minute and on pause, day change, and exit. Settings → **Export JSON** copies the recorded history to a file you choose. Settings → **Delete history** removes the main history and backup after an in-app confirmation. Exported copies and older `.corrupt-*` recovery files are separate files; delete those from **Open folder** if you no longer need them. Normal filesystem deletion is not secure erasure on SSDs.
 
-### 🛠 Teknik Altyapı
+If the main history file is malformed, ActiveRest tries the last valid backup and preserves the damaged copy with a `.corrupt-*` suffix. If neither copy is readable, tracking pauses and the app leaves both files untouched for manual recovery. See [data recovery](docs/DATA.md).
 
-ActiveRest, en güncel .NET ekosistemi kullanılarak yüksek performans ve düşük kaynak tüketimi için optimize edilmiştir.
+## PDF reports and limits
 
-* **Çekirdek Çerçeve:** **.NET 9.0** — En son çalışma zamanı (runtime) performansından ve C# 13 özelliklerinden yararlanılmıştır.
-* **Arayüz Mimarisi:** **Avalonia UI** — Özel tasarım çerçevesiz arayüz için kullanılan, XAML tabanlı modern framework.
-* **Tasarım Deseni:** **MVVM** — **CommunityToolkit.Mvvm** ile sağlanan temiz ve reaktif mimari.
-* **Sistem Telemetrisi:** **P/Invoke** (Win32 API) üzerinden kullanıcı boşta kalma süresi ve aktif pencere odak takibi.
-* **Akıllı Ses Analizi:** **Core Audio API**'leri üzerinden "Mola" ve "Medya" modları arasındaki ayrımı otomatik yapan ses izleme sistemi.
-* **Raporlama Motoru:** **QuestPDF** — Profesyonel ve mizanpajlı PDF raporları oluşturmak için kullanılan modern düzen motoru.
-* **Veri Yönetimi:** **Newtonsoft.Json** — Verileri yerel dosya sisteminde hızlı ve yapılandırılmış JSON formatında saklayan kalıcı depolama.
+The **Detailed Report** view exports a PDF to a location you choose. The report summarizes the selected date range and process totals; it is not a health, performance or productivity score. The current app still uses a frameless floating window, Windows-specific activity and startup APIs, and an approximate audio rule. The foreground process total covers active samples only; it does not prove which document or browser tab was used. The revised picker and error display still need a native Windows UI check before public release.
 
----
+## Development
 
-<p align="center">
-  <i>ActiveRest — Work Smarter, Stay Healthy.</i>
-</p>
+```powershell
+dotnet restore ActiveRest.Tests/ActiveRest.Tests.csproj
+dotnet test ActiveRest.Tests/ActiveRest.Tests.csproj -c Release
+dotnet publish ActiveRest.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false
+```
+
+The source tree includes [tests](ActiveRest.Tests/TrackingTests.cs) for midnight, sleep gaps, pause/resume, changed reminder settings, week boundaries, backup recovery and deletion. The UI, registry startup, tray and PDF paths require a Windows desktop session for release acceptance. See [support and release checks](docs/SUPPORT.md), [contributing](CONTRIBUTING.md), and [changelog](CHANGELOG.md). Licensed under [MIT](LICENSE).
+
+## Türkçe
+
+ActiveRest, Windows üzerinde çalışan **yerel bir etkinlik zamanlayıcısıdır**. Gözlenen etkin süreyi, ses çıkışı varken boşta geçen süreyi ve mola süresini gösterir. Ön plandaki **işlem adını** kaydeder; pencere başlığı, tuş vuruşu, ekran görüntüsü, mikrofon veya ses içeriği toplamaz. Varsayılan veri konumu `%APPDATA%\ActiveRest` klasörüdür. Ana ekrandan takibi duraklatabilir, Ayarlar’dan JSON dışa aktarabilir veya geçmişi onaylayarak silebilirsin. Bu sürüm sağlık ya da verimlilik sonucu vaat etmez; yeni arayüzün gerçek Windows oturumunda son kontrolü açık bir yayın kapısıdır.
