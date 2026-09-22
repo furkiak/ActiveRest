@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" role="img" aria-labelledby="title desc">
   <title id="title">ActiveRest workflow diagram</title>
-  <desc id="desc">A conceptual diagram of the revised local timer: observe activity, review today's totals, pause or resume, and export or delete local history. This is not a screenshot.</desc>
+  <desc id="desc">A conceptual diagram of the revised local timer: choose Start tracking, observe activity, review today's totals, pause or resume, and export or delete local history. This is not a screenshot.</desc>
   <defs>
     <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#091d37"/><stop offset="1" stop-color="#173f6a"/></linearGradient>
     <linearGradient id="glass" x2="0" y2="1"><stop stop-color="#f8fbff" stop-opacity=".98"/><stop offset="1" stop-color="#dbe9f8" stop-opacity=".92"/></linearGradient>
@@ -14,9 +14,9 @@
   <g filter="url(#shadow)">
     <rect x="42" y="169" width="876" height="209" rx="24" fill="url(#glass)" stroke="#ffffff" stroke-opacity=".7"/>
     <rect x="62" y="188" width="237" height="170" rx="16" fill="#ffffff" fill-opacity=".75"/>
-    <circle cx="88" cy="214" r="10" fill="#2f7fc6"/><text x="109" y="220" fill="#19395b" font-family="Arial,sans-serif" font-size="17" font-weight="700">Observe</text>
-    <text x="78" y="256" fill="#4b6680" font-family="Arial,sans-serif" font-size="13">Input idle time</text>
-    <text x="78" y="282" fill="#4b6680" font-family="Arial,sans-serif" font-size="13">Foreground process</text>
+    <circle cx="88" cy="214" r="10" fill="#2f7fc6"/><text x="109" y="220" fill="#19395b" font-family="Arial,sans-serif" font-size="17" font-weight="700">Start / observe</text>
+    <text x="78" y="256" fill="#4b6680" font-family="Arial,sans-serif" font-size="13">Choose Start tracking</text>
+    <text x="78" y="282" fill="#4b6680" font-family="Arial,sans-serif" font-size="13">Process + idle time</text>
     <text x="78" y="308" fill="#4b6680" font-family="Arial,sans-serif" font-size="13">Output audio activity</text>
     <text x="316" y="276" fill="#588ab7" font-family="Arial,sans-serif" font-size="25">→</text>
     <rect x="357" y="188" width="246" height="170" rx="16" fill="#ffffff" fill-opacity=".75"/>

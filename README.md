@@ -4,7 +4,9 @@
 
 ![ActiveRest workflow diagram, not a screenshot](docs/workflow.svg)
 
-> Preview: the source and automated tests build on Windows, but the revised interface has not yet been exercised in a native UI session or on a clean user machine. The diagram explains the workflow; it is not a product screenshot.
+![ActiveRest Windows main window with tracking off, captured from this source revision](docs/windows-main-preview.jpg)
+
+The [detailed report preview](docs/windows-report-preview.jpg) shows the empty state before tracking starts. Both images were captured from a Windows 11 desktop session on 23 September 2026; the workflow diagram is conceptual. The main window, settings, and empty report opened in that session. Tracking, tray, registry, export and clean-machine installation still need separate interactive checks.
 
 ## Try it
 
@@ -14,7 +16,7 @@ Requires Windows with the .NET 9 SDK for source builds. From the repository root
 dotnet run --project ActiveRest.csproj
 ```
 
-The app starts tracking when opened. Use **Pause tracking** in the main window to stop counting time. **Settings** offers the reminder interval, Monday/Sunday week start, Windows auto-start, **Export JSON**, **Open folder**, and **Delete history**. The tray menu can reopen or exit the app. `dotnet test ActiveRest.Tests/ActiveRest.Tests.csproj -c Release` runs the behavior tests.
+The app opens with tracking **off**. Select **Start tracking** in the main window to begin, then use **Pause tracking** or **Resume tracking** as needed. Each launch starts with tracking off, including launches triggered by the optional Windows auto-start setting. **Settings** offers the reminder interval, Monday/Sunday week start, Windows auto-start, **Export JSON**, **Open folder**, and **Delete history**. Deleting history also stops tracking until you start it again. The tray menu can reopen or exit the app. `dotnet test ActiveRest.Tests/ActiveRest.Tests.csproj -c Release` runs the behavior tests.
 
 There is no current public installer for this revision. A source build is the reproducible path until the Windows release package passes a clean-machine UI check. Do not interpret an older ZIP or image as this revision.
 
@@ -32,13 +34,13 @@ Elapsed time between ordinary samples is measured rather than assuming every tim
 
 ActiveRest runs locally and has no account, analytics service, or upload path in this source. It reads the foreground process name, Windows input idle duration and output-device audio peak. It does **not** read window titles, keystrokes, screenshots, microphone input, or audio content. Process names can still reveal personal behavior; treat exported files as private.
 
-Daily duration totals and process names are kept in `%APPDATA%\ActiveRest\stats.json`; the previous valid write is in `stats.json.bak`. Reminder and week settings are in `settings.json`. Data remains until you delete it. The app saves about once per observed minute and on pause, day change, and exit. Settings → **Export JSON** copies the recorded history to a file you choose. Settings → **Delete history** removes the main history and backup after an in-app confirmation. Exported copies and older `.corrupt-*` recovery files are separate files; delete those from **Open folder** if you no longer need them. Normal filesystem deletion is not secure erasure on SSDs.
+After you start tracking, daily duration totals and process names are kept in `%APPDATA%\ActiveRest\stats.json`; the previous valid write is in `stats.json.bak`. Reminder and week settings are in `settings.json`. Data remains until you delete it. The app saves about once per observed minute and on pause, day change, and exit while tracking. Merely opening and closing the app does not create a new history record. Settings → **Export JSON** copies the recorded history to a file you choose. Settings → **Delete history** stops tracking and removes the main history and backup after an in-app confirmation. Exported copies and older `.corrupt-*` recovery files are separate files; delete those from **Open folder** if you no longer need them. Normal filesystem deletion is not secure erasure on SSDs.
 
 If the main history file is malformed, ActiveRest tries the last valid backup and preserves the damaged copy with a `.corrupt-*` suffix. If neither copy is readable, tracking pauses and the app leaves both files untouched for manual recovery. See [data recovery](docs/DATA.md).
 
 ## PDF reports and limits
 
-The **Detailed Report** view exports a PDF to a location you choose. The report summarizes the selected date range and process totals; it is not a health, performance or productivity score. The current app still uses a frameless floating window, Windows-specific activity and startup APIs, and an approximate audio rule. The foreground process total covers active samples only; it does not prove which document or browser tab was used. The revised picker and error display still need a native Windows UI check before public release.
+The **Detailed Report** view exports a PDF to a location you choose. The report summarizes the selected date range and process totals; it is not a health, performance or productivity score. The app uses Windows-specific activity and startup APIs and an approximate audio rule. The foreground process total covers active samples only; it does not prove which document or browser tab was used. PDF export, the date picker and error display still need native Windows UI checks before public release.
 
 ## Development
 
@@ -48,8 +50,8 @@ dotnet test ActiveRest.Tests/ActiveRest.Tests.csproj -c Release
 dotnet publish ActiveRest.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false
 ```
 
-The source tree includes [tests](ActiveRest.Tests/TrackingTests.cs) for midnight, sleep gaps, pause/resume, changed reminder settings, week boundaries, backup recovery and deletion. The UI, registry startup, tray and PDF paths require a Windows desktop session for release acceptance. See [support and release checks](docs/SUPPORT.md), [contributing](CONTRIBUTING.md), and [changelog](CHANGELOG.md). Licensed under [MIT](LICENSE).
+The source tree includes [tests](ActiveRest.Tests/TrackingTests.cs) for midnight, sleep gaps, pause/resume, opt-in startup, changed reminder settings, week boundaries, backup recovery and deletion. The main, settings and empty-report screens were visually inspected on Windows; registry startup, tray, PDF and clean-profile checks remain release gates. See [support and release checks](docs/SUPPORT.md), [contributing](CONTRIBUTING.md), and [changelog](CHANGELOG.md). Licensed under [MIT](LICENSE).
 
 ## Türkçe
 
-ActiveRest, Windows üzerinde çalışan **yerel bir etkinlik zamanlayıcısıdır**. Gözlenen etkin süreyi, ses çıkışı varken boşta geçen süreyi ve mola süresini gösterir. Ön plandaki **işlem adını** kaydeder; pencere başlığı, tuş vuruşu, ekran görüntüsü, mikrofon veya ses içeriği toplamaz. Varsayılan veri konumu `%APPDATA%\ActiveRest` klasörüdür. Ana ekrandan takibi duraklatabilir, Ayarlar’dan JSON dışa aktarabilir veya geçmişi onaylayarak silebilirsin. Bu sürüm sağlık ya da verimlilik sonucu vaat etmez; yeni arayüzün gerçek Windows oturumunda son kontrolü açık bir yayın kapısıdır.
+ActiveRest, Windows üzerinde çalışan **yerel bir etkinlik zamanlayıcısıdır**. Gözlenen etkin süreyi, ses çıkışı varken boşta geçen süreyi ve mola süresini gösterir. Ön plandaki **işlem adını** kaydeder; pencere başlığı, tuş vuruşu, ekran görüntüsü, mikrofon veya ses içeriği toplamaz. Varsayılan veri konumu `%APPDATA%\ActiveRest` klasörüdür. Uygulama her açılışta takip kapalı başlar; ana ekrandaki **Start tracking** düğmesine basınca ölçüm başlar. Takibi duraklatabilir, Ayarlar’dan JSON dışa aktarabilir veya geçmişi onaylayarak silebilirsin. Geçmişi silmek takibi de durdurur. Bu sürüm sağlık ya da verimlilik sonucu vaat etmez. Ana ekran, ayarlar ve boş rapor gerçek Windows oturumunda kontrol edildi; takip, tepsi, PDF ve temiz kullanıcı profili testleri yayın öncesi açıktır.

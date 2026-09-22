@@ -1,11 +1,45 @@
 using ActiveRest.Models;
 using ActiveRest.Services;
+using ActiveRest.ViewModels;
 using System.Globalization;
 
 namespace ActiveRest.Tests;
 
 public class TrackingTests
 {
+    [Fact]
+    public void Opening_and_exiting_does_not_start_or_write_activity_history()
+    {
+        using var folder = new TestFolder();
+        var history = System.IO.Path.Combine(folder.Path, "stats.json");
+        using (var window = new MainWindowViewModel(new DataManager(folder.Path), new FakeActivity()))
+        {
+            Assert.Equal("Start tracking", window.PauseButtonText);
+            Assert.Contains("Tracking off", window.TrackingStatusText);
+            window.ForceSave();
+        }
+        Assert.False(File.Exists(history));
+    }
+
+    [Fact]
+    public void Deleting_history_stops_tracking_until_started_again()
+    {
+        using var folder = new TestFolder();
+        var history = System.IO.Path.Combine(folder.Path, "stats.json");
+        using var window = new MainWindowViewModel(new DataManager(folder.Path), new FakeActivity());
+        window.TogglePauseCommand.Execute(null);
+        Assert.Equal("Pause tracking", window.PauseButtonText);
+
+        window.DeleteHistory();
+        Assert.Equal("Start tracking", window.PauseButtonText);
+        Assert.Contains("Tracking off", window.TrackingStatusText);
+        window.ForceSave();
+        Assert.False(File.Exists(history));
+
+        window.TogglePauseCommand.Execute(null);
+        Assert.Equal("Pause tracking", window.PauseButtonText);
+    }
+
     [Fact]
     public void Week_start_handles_sunday_year_boundary_and_culture()
     {

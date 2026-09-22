@@ -1,10 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ActiveRest.Views.SettingsWindow"
-        Title="Settings" Width="400" Height="590" MinWidth="370" MinHeight="560"
-        SystemDecorations="None"
-        Background="Transparent"
-        TransparencyLevelHint="Transparent"
+        Title="Settings" Icon="/Assets/activerest.ico" Width="420" Height="640" MinWidth="400" MinHeight="620"
+        SystemDecorations="Full"
+        Background="#F4F7FC"
         WindowStartupLocation="CenterOwner"
         RequestedThemeVariant="Light"
         FontFamily="Segoe UI, Arial, sans-serif">
@@ -17,29 +16,16 @@
             <Setter Property="FontSize" Value="18"/><Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
-        <Style Selector="Button.CloseBtn">
-            <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="15"/><Setter Property="Width" Value="30"/><Setter Property="Height" Value="30"/>
-        </Style>
-        <Style Selector="Button.CloseBtn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#E5E5EA"/>
-        </Style>
     </Window.Styles>
 
     <Border Background="#F4F7FC" CornerRadius="22" BorderBrush="#D6E2F2" BorderThickness="1" Margin="10" BoxShadow="0 16 48 0 #200B2450">
         <Grid RowDefinitions="Auto, *, Auto" Margin="25">
             
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
-                <StackPanel Grid.Column="0">
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <StackPanel>
                     <TextBlock Text="Application Settings" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
                     <TextBlock Text="Local tracking and privacy controls" FontSize="12" Foreground="#536B86"/>
                 </StackPanel>
-                
-                <Button Grid.Column="1" Classes="CloseBtn" Click="Cancel_Click" VerticalAlignment="Top"
-                        ToolTip.Tip="Close settings" AutomationProperties.Name="Close settings">
-                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                          Fill="#52657A" Width="18" Height="18" Stretch="Uniform"/>
-                </Button>
             </Grid>
 
             <StackPanel Grid.Row="1" Spacing="14">
@@ -73,7 +59,7 @@
                 <Border Background="#E7F0FB" CornerRadius="12" Padding="12" BorderBrush="#C9DCF2" BorderThickness="1">
                     <StackPanel Spacing="6">
                         <TextBlock Text="Your data stays on this device" FontWeight="SemiBold" Foreground="#174C84"/>
-                        <TextBlock Text="Process names, daily durations and settings are stored locally. Pause tracking in the main window." TextWrapping="Wrap" FontSize="11" Foreground="#315C85"/>
+                        <TextBlock Text="Tracking starts only after you choose Start tracking. Process names, daily durations and settings stay on this device." TextWrapping="Wrap" FontSize="11" Foreground="#315C85"/>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <Button Content="Export JSON" Click="Export_Click" Padding="8,5"/>
                             <Button Content="Open folder" Click="OpenDataFolder_Click" Padding="8,5"/>

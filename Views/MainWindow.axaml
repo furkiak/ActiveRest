@@ -4,14 +4,13 @@
         x:Class="ActiveRest.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="ActiveRest"
-        Width="380" Height="650" MinWidth="350" MinHeight="620"
-        SystemDecorations="None" 
-        Background="Transparent"
-        TransparencyLevelHint="Transparent"
-        Topmost="True"
-        ShowInTaskbar="False"
-        RequestedThemeVariant="Light" 
-        Deactivated="OnWindowDeactivated">
+        Icon="/Assets/activerest.ico"
+        Width="420" Height="700" MinWidth="380" MinHeight="650"
+        SystemDecorations="Full"
+        Background="#F4F7FC"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        RequestedThemeVariant="Light">
         
     <Border Background="#F4F7FC"
             CornerRadius="22"
@@ -112,7 +111,7 @@
                         <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" Spacing="6">
                             <Path Data="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20M19,8H5V6H19V8Z" 
                                   Fill="#52657A" Width="14" Height="14" Stretch="Uniform"/>
-                            <TextBlock Text="Tarih Filtresi:" Foreground="#52657A" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="Date" Foreground="#52657A" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </StackPanel>
                         <DatePicker Grid.Column="1" SelectedDate="{Binding SelectedDate}" 
                                     Background="#FFFFFF" BorderBrush="#E5E5EA" BorderThickness="1" CornerRadius="6" 

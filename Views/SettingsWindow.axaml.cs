@@ -48,7 +48,7 @@ namespace ActiveRest.Views
         private void UpdateIntervalDisplay()
         {
             var textBlock = this.FindControl<TextBlock>("IntervalValueText");
-            if (textBlock != null) textBlock.Text = $"{_currentInterval} Minute";
+            if (textBlock != null) textBlock.Text = $"{_currentInterval} minutes";
         }
 
         private void Save_Click(object? sender, RoutedEventArgs e)
@@ -66,8 +66,6 @@ namespace ActiveRest.Views
             }
             catch (Exception ex) { ShowFeedback($"Could not save all settings: {ex.Message}"); }
         }
-
-        private void Cancel_Click(object? sender, RoutedEventArgs e) => this.Close();
 
         private async void Export_Click(object? sender, RoutedEventArgs e)
         {

@@ -2,9 +2,6 @@ using ActiveRest.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
 using Avalonia.Platform.Storage;
 
 namespace ActiveRest.Views
@@ -15,10 +12,6 @@ namespace ActiveRest.Views
         {
             InitializeComponent();
         } 
-        private void Close_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-        {
-            this.Close();
-        }
         private async void ExportToPdf_Click(object? sender, RoutedEventArgs e)
         {
             if (this.DataContext is MainWindowViewModel vm)

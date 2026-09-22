@@ -25,7 +25,6 @@ namespace ActiveRest
                 if (desktop.MainWindow is ActiveRest.Views.MainWindow mainWindow)
                 {
                     mainWindow.Show();
-                    mainWindow.PositionWindowToBottomRight();  
                     mainWindow.Activate();
                 }
             }
@@ -38,7 +37,6 @@ namespace ActiveRest
                 if (desktop.MainWindow is ActiveRest.Views.MainWindow mainWindow)
                 {
                     mainWindow.Show();
-                    mainWindow.PositionWindowToBottomRight();
                     mainWindow.Activate();
                 }
             }

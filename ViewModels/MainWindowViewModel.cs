@@ -27,28 +27,31 @@ namespace ActiveRest.ViewModels
         [ObservableProperty] private string _breakTimeText = "00h 00m 00s";
 
         [ObservableProperty] private List<AppUsageItem> _appUsageList = new();
+        [ObservableProperty] private bool _hasAppUsage;
+        [ObservableProperty] private bool _noAppUsage = true;
+        [ObservableProperty] private bool _hasSessionTime;
+        [ObservableProperty] private bool _noSessionTime = true;
 
         [ObservableProperty] private string _chartFocusWidth = "1*";
         [ObservableProperty] private string _chartRelaxWidth = "1*";
         [ObservableProperty] private string _chartBreakWidth = "1*";
 
         [ObservableProperty] private string _totalUptimeText = "00h 00m 00s";
-        [ObservableProperty] private string _focusStatText = "%0 (00h 00m)";
-        [ObservableProperty] private string _relaxStatText = "%0 (00h 00m)";
-        [ObservableProperty] private string _breakStatText = "%0 (00h 00m)";
+        [ObservableProperty] private string _focusStatText = "0% (00h 00m 00s)";
+        [ObservableProperty] private string _relaxStatText = "0% (00h 00m 00s)";
+        [ObservableProperty] private string _breakStatText = "0% (00h 00m 00s)";
 
         [ObservableProperty] private DateTimeOffset? _selectedDate = DateTimeOffset.Now;
-        [ObservableProperty] private string _trackingStatusText = "Tracking locally";
-        [ObservableProperty] private string _pauseButtonText = "Pause tracking";
+        [ObservableProperty] private string _trackingStatusText = "Tracking off · start when ready";
+        [ObservableProperty] private string _pauseButtonText = "Start tracking";
         [ObservableProperty] private string _dataStatusText = "";
         private string _currentMode = "Daily";
         private bool _followToday = true;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(DataManager? dataManager = null, IActivityTracker? activityTracker = null)
         {
-            var tracker = new WindowsActivityTracker();
-            _dataManager = new DataManager();
-            _engine = new TrackerEngine(tracker, _dataManager);
+            _dataManager = dataManager ?? new DataManager();
+            _engine = new TrackerEngine(activityTracker ?? new WindowsActivityTracker(), _dataManager);
             _engine.RestReminderDue += () => Dispatcher.UIThread.Post(() => new Views.NotificationWindow().Show());
             _engine.TrackingFailed += ex => Dispatcher.UIThread.Post(() =>
             {
@@ -56,7 +59,6 @@ namespace ActiveRest.ViewModels
                 DataStatusText = $"Could not save local activity: {ex.Message}";
                 PauseButtonText = "Resume tracking";
             });
-            _engine.StartTracking();
             if (!_dataManager.CanWrite)
             {
                 TrackingStatusText = "Tracking paused · history needs recovery";
@@ -161,7 +163,7 @@ namespace ActiveRest.ViewModels
         }
         public void ForceSave()
         {
-            if (_dataManager.CanWrite) _engine.SaveSnapshot();
+            if (_dataManager.CanWrite && _engine.IsRunning) _engine.SaveSnapshot();
         }
         public void ReloadSettings()
         {
@@ -172,7 +174,17 @@ namespace ActiveRest.ViewModels
         [RelayCommand]
         private void TogglePause()
         {
-            if (!_engine.IsRunning) return;
+            if (!_engine.IsRunning)
+            {
+                if (!_dataManager.CanWrite) return;
+                _engine.StartTracking();
+                if (_engine.IsRunning)
+                {
+                    TrackingStatusText = "Tracking locally";
+                    PauseButtonText = "Pause tracking";
+                }
+                return;
+            }
             if (_engine.IsPaused)
             {
                 _engine.Resume();
@@ -189,13 +201,15 @@ namespace ActiveRest.ViewModels
 
         public void ExportHistory(string path)
         {
-            if (_dataManager.CanWrite) _engine.SaveSnapshot();
+            if (_dataManager.CanWrite && _engine.IsRunning) _engine.SaveSnapshot();
             _dataManager.ExportAllData(path);
         }
         public void DeleteHistory()
         {
+            if (_engine.IsRunning) _engine.StopTracking();
             _engine.DeleteHistory();
-            if (!_engine.IsRunning) _engine.StartTracking();
+            TrackingStatusText = "Tracking off · start when ready";
+            PauseButtonText = "Start tracking";
             DataStatusText = "Local history deleted.";
             CalculateStats();
         }
@@ -233,15 +247,19 @@ namespace ActiveRest.ViewModels
                     AppName = x.Key,
                     TotalSeconds = x.Value,
                     DurationText = FormatTime(x.Value),
-                    PercentageText = $"%{Math.Round(pct)}"  
+                    PercentageText = $"{Math.Round(pct)}%"
                 };
             }).OrderByDescending(x => x.TotalSeconds).ToList(); 
+            HasAppUsage = AppUsageList.Count > 0;
+            NoAppUsage = !HasAppUsage;
              
 
             double f = stats.Sum(x => x.TotalFocusedSeconds);
             double r = stats.Sum(x => x.TotalRelaxedSeconds);
             double b = stats.Sum(x => x.TotalBreakSeconds);
             double total = f + r + b;
+            HasSessionTime = total > 0;
+            NoSessionTime = !HasSessionTime;
 
             if (total > 0)
             {
@@ -251,14 +269,14 @@ namespace ActiveRest.ViewModels
 
                 ChartFocusWidth = $"{fw}*"; ChartRelaxWidth = $"{rw}*"; ChartBreakWidth = $"{bw}*";
                  
-                FocusStatText = $"%{fw} ({FormatTime(f)})";
-                RelaxStatText = $"%{rw} ({FormatTime(r)})";
-                BreakStatText = $"%{bw} ({FormatTime(b)})";
+                FocusStatText = $"{fw}% ({FormatTime(f)})";
+                RelaxStatText = $"{rw}% ({FormatTime(r)})";
+                BreakStatText = $"{bw}% ({FormatTime(b)})";
             }
             else
             {
                 ChartFocusWidth = "1*"; ChartRelaxWidth = "1*"; ChartBreakWidth = "1*";
-                FocusStatText = "%0 (00h 00m 00s)"; RelaxStatText = "%0 (00h 00m 00s)"; BreakStatText = "%0 (00h 00m 00s)";
+                FocusStatText = "0% (00h 00m 00s)"; RelaxStatText = "0% (00h 00m 00s)"; BreakStatText = "0% (00h 00m 00s)";
             }
 
             TotalUptimeText = FormatTime(total);

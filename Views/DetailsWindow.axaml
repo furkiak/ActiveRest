@@ -5,10 +5,10 @@
         x:Class="ActiveRest.Views.DetailsWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Detailed Analysis"
-        Width="460" Height="620"
-        SystemDecorations="None"
-        Background="Transparent"
-        TransparencyLevelHint="Transparent"
+        Icon="/Assets/activerest.ico"
+        Width="480" Height="660"
+        SystemDecorations="Full"
+        Background="#F5F5F7"
         WindowStartupLocation="CenterOwner"
         RequestedThemeVariant="Light"
         FontFamily="Segoe UI, Ubuntu, Arial">
@@ -22,22 +22,12 @@
         
         <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="25">
             
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
-                <StackPanel Grid.Column="0">
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <StackPanel>
                     <TextBlock Text="Detailed Analysis" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
                     <TextBlock Text="Device usage summary and detailed application report" FontSize="12" Foreground="#52657A"/>
                 </StackPanel>
 
-                <Button Grid.Column="1" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Click="Close_Click"
-                        ToolTip.Tip="Close report" AutomationProperties.Name="Close report">
-                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                          Fill="#52657A" Width="18" Height="18" Stretch="Uniform"/>
-                    <Button.Styles>
-                        <Style Selector="Button:pointerover /template/ ContentPresenter">
-                            <Setter Property="Background" Value="#E5E5EA"/>
-                        </Style>
-                    </Button.Styles>
-                </Button>
             </Grid>
 
             <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="12" Padding="20" Margin="0,0,0,15" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
@@ -47,7 +37,7 @@
                         <TextBlock Grid.Column="1" Text="{Binding TotalUptimeText}" FontWeight="Bold" FontSize="14" Foreground="#1D1D1F" VerticalAlignment="Center"/>
                     </Grid>
 
-                    <Border CornerRadius="6" Height="12" ClipToBounds="True">
+                    <Border CornerRadius="6" Height="12" ClipToBounds="True" IsVisible="{Binding HasSessionTime}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="{Binding ChartFocusWidth}" />
@@ -59,6 +49,7 @@
                             <Border Grid.Column="2" Background="#D1D1D6" /> 
                         </Grid>
                     </Border>
+                    <TextBlock Text="No measured time in this period yet." IsVisible="{Binding NoSessionTime}" Foreground="#52657A" FontSize="12"/>
 
                     <StackPanel Spacing="10" Margin="0,5,0,0">
                         <Grid ColumnDefinitions="Auto, *, Auto">
@@ -87,8 +78,9 @@
             </Border>
 
             <Border Grid.Row="2" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
+                <Grid>
                 <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding AppUsageList}" Margin="15,10">
+                    <ItemsControl ItemsSource="{Binding AppUsageList}" Margin="15,10" IsVisible="{Binding HasAppUsage}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:AppUsageItem">
                                 <Border BorderBrush="#F5F5F7" BorderThickness="0,0,0,1" Padding="0,10">
@@ -107,6 +99,11 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6" IsVisible="{Binding NoAppUsage}">
+                    <TextBlock Text="No app activity recorded yet" FontWeight="SemiBold" Foreground="#1D1D1F" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Start tracking to see local process totals." Foreground="#52657A" FontSize="12" HorizontalAlignment="Center"/>
+                </StackPanel>
+                </Grid>
             </Border>
 
             <StackPanel Grid.Row="3" Margin="0,20,0,0" Spacing="8">
