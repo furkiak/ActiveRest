@@ -45,9 +45,9 @@ The date popup showed full day/month/year values at 200%. At 150% its explicit *
 
 Changing appearance while tracking left tracking active and did not reset totals. Pause then froze totals across subsequent observations. A real PDF was saved from the Light/200% report and rendered for visual inspection: one readable page with the same fixed report layout and synthetic initial totals. Normal profile files and the Windows Run-entry digests matched the before/after snapshots exactly; the separate-profile startup control remained disabled.
 
-![Light theme, 200% text and minimum-width wrapped header](images/appearance-light-200-minimum.png)
+![Light theme, 200% text and minimum-width wrapped header](images/appearance-light-200-minimum.jpg)
 
-![Light theme report with 200% text](images/appearance-report-light-200.png)
+![Light theme report with 200% text](images/appearance-report-light-200.jpg)
 
 Native reminder delivery, history-deletion confirmation, normal startup/tray, physical sleep/midnight, screen-reader output, alternate Windows DPI, other display sizes and clean-machine installation are still pending. These observations and source palette ratios are not a WCAG conformance claim. Historical tracking/date/weekly JSON checks remain separate evidence for the earlier layout.
 

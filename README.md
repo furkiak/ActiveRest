@@ -1,14 +1,12 @@
 # ActiveRest
 
-**A local activity timer for Windows.** ActiveRest shows how much observed time your device spent active, idle with audio output, or idle without it. It displays foreground process totals, offers a configurable break reminder, and exports a PDF or JSON report. Built with C#, .NET 10 and Avalonia 11.
+**See where your computer time goes, on your own computer.** ActiveRest is a Windows activity timer built with C#, .NET 10 and Avalonia. Start tracking when you want to measure focused time, audio activity while idle, and rest. Pause whenever you like; review process totals and export JSON or PDF reports.
 
-![ActiveRest workflow diagram, not a screenshot](docs/workflow.svg)
+![ActiveRest main window with tracking off, captured on Windows 11](docs/windows-main-preview.jpg)
 
-The local **0.3.0-preview.2** runtime candidate targets .NET 10 LTS and directly selects patched `Tmds.DBus.Protocol` 0.21.3 instead of the vulnerable transitive 0.20.0. Stable .NET 10 SDK selection and complete-graph NuGet auditing apply to app/tests and the CI source; known vulnerability warnings fail restore. Existing tracking/history/settings formats and Avalonia 11.2.7 are retained. The exact final Windows ZIP built from **`1e6096976cbf0aa673c635bbe9cc322a0aa5a36d`** passed 38 clean-clone tests and selected native Dark/200 Start, Light/200 Save while tracking, Pause, matching week/report/PDF and paused restart checks on 27 September 2026. [Runtime verification](docs/RUNTIME.md) records its hash, bounded native manifest and remaining gates. This documentation follow-up does not rebuild or repackage that ZIP. No public installer or remote CI result is claimed.
+*Real Windows capture from 23 September 2026. The current build also offers light/dark themes and larger text; this image shows the earlier layout. The [report capture](docs/windows-report-preview.jpg) likewise shows an empty report before tracking.*
 
-![ActiveRest Windows main window with tracking off, historical capture before the appearance revision](docs/windows-main-preview.jpg)
-
-The [detailed report preview](docs/windows-report-preview.jpg) shows the empty state before tracking starts. Both images were captured from a Windows 11 desktop session on 23 September 2026 and precede the appearance changes; the workflow diagram is conceptual. On 27 September 2026 an earlier separate-profile build exercised real foreground tracking, Pause/Resume, saved reminder settings, native JSON export, the date picker, Monday/Sunday totals and native PDF export. See the historical [native validation](docs/NATIVE_VALIDATION.md). The earlier .NET 9 / 0.3.0-preview.1 appearance revision had 38 behavior tests and native Light/Dark, 100/150/200% font, keyboard scrolling, restart persistence, tracking-state and PDF checks in a disposable profile. That wider [appearance evidence and its limits](docs/APPEARANCE.md) remains historical; the .NET 10 candidate's selected checks are recorded separately in the runtime document. Tray, normal startup, destructive UI confirmation and clean-machine installation remain separate checks.
+The current **0.3.0-preview.2** source targets .NET 10. Its packaged Windows build passed 38 tests and selected native tracking, appearance, pause, report and restart checks on 27 September 2026. There is no public installer yet; [runtime results and remaining checks](docs/RUNTIME.md) identify the exact package. A [workflow diagram](docs/workflow.svg) explains the three time categories.
 
 ## Try it
 

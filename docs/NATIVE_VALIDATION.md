@@ -16,11 +16,11 @@
 | Incompatible history/settings | Start refused; Settings Save displayed recovery error; original JSON bytes remained unchanged |
 | Activity bar | The former three equal segments for a 100% focus fixture were reproduced and fixed; native report now fills the bar correctly; a 30/15/15-second fixture also shows 50%/25%/25% |
 
-![Selected weekly period](windows-week-preview.png)
+![Selected weekly period](windows-week-preview.jpg)
 
-![Actual native full-focus report](windows-report-tracked.png)
+![Actual native full-focus report](windows-report-tracked.jpg)
 
-![Actual native mixed-time report](windows-report-mixed.png)
+![Actual native mixed-time report](windows-report-mixed.jpg)
 
 The January fixture contains 29 December 2025 (10 seconds), 4 January 2026 (20), 5 January (40) and 11 January (80). Automated view-model checks exercise both tr-TR and en-US. Additional native chart checks use clearly synthetic current-date records; they are not productivity measurements.
 

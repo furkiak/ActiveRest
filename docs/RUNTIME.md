@@ -37,17 +37,16 @@ Restart retained Light/200, tracking off and byte-identical paused history. Both
 owned test processes ended; the four known normal-profile file hashes and Run
 entry digest stayed unchanged. No personal history was copied.
 
-The dated local records are outside this repository, under
-`E:\GithubDosyalar_Kurtarma_2026-09-27\_GithubProfesyonelHedef\evidence`:
+The dated validation records are retained with the local release candidate,
+outside this source repository:
 
 - `ActiveRest-package-1e60969-net10.json` binds the code commit, ZIP, clean-test
   and publish proof to the native result.
 - `Runtime-net10-2026-09-27\ActiveRest-1e60969\native-result.json` records the
   exact-package observations and remaining boundaries.
 
-This documentation follow-up records existing acceptance of that code/ZIP. It
-does not rebuild, repackage or rerun it; later documentation-only HEADs are not
-new runtime acceptance. Selected Dark/200 and Light/200 observations do not
+The results above apply to the identified code commit and ZIP; later changes to
+documentation do not constitute another runtime validation. Selected Dark/200 and Light/200 observations do not
 establish the full new-runtime appearance/error matrix. The wider `66c48f5`
 .NET 9 font/minimum-window/date-popup evidence remains historical.
 
