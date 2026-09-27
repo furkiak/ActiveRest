@@ -26,7 +26,7 @@ namespace ActiveRest.Services
                         row.RelativeItem().Column(col =>
                         {
                             col.Item().Text("ActiveRest activity summary").FontSize(24).SemiBold().FontColor("#1D1D1F");
-                            col.Item().Text($"{vm.CurrentModeText} · generated {DateTime.Now:dd MMMM yyyy}").FontSize(12).FontColor("#86868B");
+                            col.Item().Text($"{vm.CurrentModeText} · generated {DateTime.Now:dd MMMM yyyy}").FontSize(12).FontColor("#52657A");
                         });
                     }); 
                     page.Content().PaddingVertical(20).Column(column =>
@@ -35,16 +35,16 @@ namespace ActiveRest.Services
                         column.Item().Row(row =>
                         {
                             row.RelativeItem().Padding(5).Border(1).BorderColor("#E5E5EA").Background("#F5F5F7").Padding(10).Column(c => {
-                                c.Item().Text("Focused Work").FontSize(10).FontColor("#86868B");
+                                c.Item().Text("Focused Work").FontSize(10).FontColor("#52657A");
                                 c.Item().Text(vm.FocusStatText).FontSize(14).Bold().FontColor("#2C2C2E");
                             });
                             row.RelativeItem().Padding(5).Border(1).BorderColor("#E5E5EA").Background("#F5F5F7").Padding(10).Column(c => {
-                                c.Item().Text("Audio active while idle").FontSize(10).FontColor("#86868B");
-                                c.Item().Text(vm.RelaxStatText).FontSize(14).Bold().FontColor("#8E8E93");
+                                c.Item().Text("Audio active while idle").FontSize(10).FontColor("#52657A");
+                                c.Item().Text(vm.RelaxStatText).FontSize(14).Bold().FontColor("#2C2C2E");
                             });
                             row.RelativeItem().Padding(5).Border(1).BorderColor("#E5E5EA").Background("#F5F5F7").Padding(10).Column(c => {
-                                c.Item().Text("Rest").FontSize(10).FontColor("#86868B");
-                                c.Item().Text(vm.BreakStatText).FontSize(14).Bold().FontColor("#D1D1D6");
+                                c.Item().Text("Rest").FontSize(10).FontColor("#52657A");
+                                c.Item().Text(vm.BreakStatText).FontSize(14).Bold().FontColor("#2C2C2E");
                             });
                         });
                          
@@ -80,7 +80,7 @@ namespace ActiveRest.Services
                      
                     page.Footer().AlignCenter().Text(x =>
                     {
-                        x.Span("Observed local activity, not a productivity score. | ").FontColor("#86868B");
+                        x.Span("Observed local activity, not a productivity score. | ").FontColor("#52657A");
                         x.CurrentPageNumber().FontColor("#1D1D1F");
                     });
                 });

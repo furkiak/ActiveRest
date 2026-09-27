@@ -55,7 +55,7 @@
             </Border>
 
             <StackPanel Grid.Row="2" Margin="0,16,0,14" Spacing="7">
-                <TextBlock Text="{Binding CurrentModeText}" Foreground="#102849" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding CurrentModeText}" Foreground="#102849" FontSize="17" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
                 <TextBlock Text="{Binding TrackingStatusText}" Foreground="#315C85" FontSize="12" HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding DataStatusText}" Foreground="#8A4824" FontSize="11" TextWrapping="Wrap"/>
                 <Button Content="{Binding PauseButtonText}" Command="{Binding TogglePauseCommand}"

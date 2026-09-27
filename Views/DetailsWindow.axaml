@@ -26,6 +26,7 @@
                 <StackPanel>
                     <TextBlock Text="Detailed Analysis" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
                     <TextBlock Text="Device usage summary and detailed application report" FontSize="12" Foreground="#52657A"/>
+                    <TextBlock Text="{Binding CurrentModeText}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="#102849" Margin="0,5,0,0"/>
                 </StackPanel>
 
             </Grid>

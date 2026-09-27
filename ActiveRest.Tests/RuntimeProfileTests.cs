@@ -176,9 +176,18 @@ public sealed class RuntimeProfileTests
                 vm.SelectedDate = new DateTimeOffset(2026, 1, 4, 12, 0, 0, TimeSpan.Zero);
                 vm.ChangeViewModeCommand.Execute("Weekly");
                 Assert.Equal("00h 00m 30s", vm.FocusedTimeText);
+                Assert.Contains("29", vm.CurrentModeText);
+                Assert.Contains("2025", vm.CurrentModeText);
+                Assert.Contains("04", vm.CurrentModeText);
+                Assert.Contains("2026", vm.CurrentModeText);
+                Assert.EndsWith("· Week", vm.CurrentModeText);
                 data.SaveSettings(new AppSettings { WeekStartsOnSunday = true });
                 vm.ReloadSettings();
                 Assert.Equal("00h 01m 00s", vm.FocusedTimeText);
+                Assert.DoesNotContain("2025", vm.CurrentModeText);
+                Assert.Contains("04", vm.CurrentModeText);
+                Assert.Contains("10", vm.CurrentModeText);
+                Assert.EndsWith("· Week", vm.CurrentModeText);
             }
         }
         finally { CultureInfo.CurrentCulture = previous; }

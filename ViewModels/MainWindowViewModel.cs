@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ActiveRest.Services;
 using ActiveRest.Models;
+using Avalonia.Controls;
 
 namespace ActiveRest.ViewModels
 {
@@ -32,9 +33,9 @@ namespace ActiveRest.ViewModels
         [ObservableProperty] private bool _hasSessionTime;
         [ObservableProperty] private bool _noSessionTime = true;
 
-        [ObservableProperty] private string _chartFocusWidth = "1*";
-        [ObservableProperty] private string _chartRelaxWidth = "1*";
-        [ObservableProperty] private string _chartBreakWidth = "1*";
+        [ObservableProperty] private GridLength _chartFocusWidth = new(1, GridUnitType.Star);
+        [ObservableProperty] private GridLength _chartRelaxWidth = new(1, GridUnitType.Star);
+        [ObservableProperty] private GridLength _chartBreakWidth = new(1, GridUnitType.Star);
 
         [ObservableProperty] private string _totalUptimeText = "00h 00m 00s";
         [ObservableProperty] private string _focusStatText = "0% (00h 00m 00s)";
@@ -82,11 +83,6 @@ namespace ActiveRest.ViewModels
         partial void OnSelectedDateChanged(DateTimeOffset? value)
         {
             _followToday = value.HasValue && value.Value.Date == DateTime.Today;
-            if (value.HasValue && value.Value.Date == DateTime.Today)
-                CurrentModeText = _currentMode == "Daily" ? "Today" : CurrentModeText;
-            else
-                CurrentModeText = $"{value?.ToString("dd MMM yyyy")} · {_currentMode}";
-
             CalculateStats();
         }
 
@@ -98,11 +94,6 @@ namespace ActiveRest.ViewModels
             WeeklyButtonColor = mode == "Weekly" ? "#FFFFFF" : "Transparent";
             MonthlyButtonColor = mode == "Monthly" ? "#FFFFFF" : "Transparent";
             YearlyButtonColor = mode == "Yearly" ? "#FFFFFF" : "Transparent";
-
-            if (mode == "Daily") CurrentModeText = "Statistics";
-            else if (mode == "Weekly") CurrentModeText = "Weekly Total Statistics";
-            else if (mode == "Monthly") CurrentModeText = "Monthly Total Statistics";
-            else if (mode == "Yearly") CurrentModeText = "Yearly Total Statistics";
 
             if (mode == "Daily") SelectedDate = DateTimeOffset.Now;
             CalculateStats();
@@ -128,6 +119,17 @@ namespace ActiveRest.ViewModels
         {
             try
             {
+                DateTime targetDate = SelectedDate?.Date ?? DateTime.Today;
+                var settings = _dataManager.LoadSettings();
+                DateTime startOfWeek = WeekMath.StartOfWeek(targetDate,
+                    settings.WeekStartsOnSunday ? DayOfWeek.Sunday : DayOfWeek.Monday);
+                CurrentModeText = _currentMode switch
+                {
+                    "Weekly" => $"{startOfWeek:dd MMM yyyy} – {startOfWeek.AddDays(6):dd MMM yyyy} · Week",
+                    "Monthly" => $"{targetDate:MMMM yyyy} · Month",
+                    "Yearly" => $"{targetDate:yyyy} · Year",
+                    _ => targetDate == DateTime.Today ? "Today" : $"{targetDate:dd MMM yyyy} · Day"
+                };
                 if (_currentMode == "Daily" && SelectedDate.HasValue && SelectedDate.Value.Date == DateTime.Today)
                 {
                     UpdateUI(null, EventArgs.Empty);
@@ -138,16 +140,12 @@ namespace ActiveRest.ViewModels
                 var liveToday = _engine.GetCurrentSnapshot();
                 allData.RemoveAll(d => d.Date.Date == liveToday.Date.Date);
                 allData.Add(liveToday);
-                DateTime targetDate = SelectedDate?.Date ?? DateTime.Today;
                 List<DailyStat> filteredData = new List<DailyStat>();
 
                 switch (_currentMode)
                 {
                     case "Daily": filteredData = allData.Where(d => d.Date.Date == targetDate).ToList(); break;
                     case "Weekly":
-                        var settings = _dataManager.LoadSettings();
-                        DateTime startOfWeek = WeekMath.StartOfWeek(targetDate,
-                            settings.WeekStartsOnSunday ? DayOfWeek.Sunday : DayOfWeek.Monday);
                         filteredData = allData.Where(d => d.Date.Date >= startOfWeek && d.Date.Date < startOfWeek.AddDays(7)).ToList();
                         break;
                     case "Monthly": filteredData = allData.Where(d => d.Date.Year == targetDate.Year && d.Date.Month == targetDate.Month).ToList(); break;
@@ -272,7 +270,9 @@ namespace ActiveRest.ViewModels
                 int rw = (int)Math.Round((r / total) * 100);
                 int bw = (int)Math.Round((b / total) * 100);
 
-                ChartFocusWidth = $"{fw}*"; ChartRelaxWidth = $"{rw}*"; ChartBreakWidth = $"{bw}*";
+                ChartFocusWidth = new GridLength(f, GridUnitType.Star);
+                ChartRelaxWidth = new GridLength(r, GridUnitType.Star);
+                ChartBreakWidth = new GridLength(b, GridUnitType.Star);
                  
                 FocusStatText = $"{fw}% ({FormatTime(f)})";
                 RelaxStatText = $"{rw}% ({FormatTime(r)})";
@@ -280,7 +280,7 @@ namespace ActiveRest.ViewModels
             }
             else
             {
-                ChartFocusWidth = "1*"; ChartRelaxWidth = "1*"; ChartBreakWidth = "1*";
+                ChartFocusWidth = ChartRelaxWidth = ChartBreakWidth = new GridLength(1, GridUnitType.Star);
                 FocusStatText = "0% (00h 00m 00s)"; RelaxStatText = "0% (00h 00m 00s)"; BreakStatText = "0% (00h 00m 00s)";
             }
 
