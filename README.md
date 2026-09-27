@@ -1,8 +1,10 @@
 # ActiveRest
 
-**A local activity timer for Windows.** ActiveRest shows how much observed time your device spent active, idle with audio output, or idle without it. It displays foreground process totals, offers a configurable break reminder, and exports a PDF or JSON report. Built with C# 13, .NET 9 and Avalonia 11.
+**A local activity timer for Windows.** ActiveRest shows how much observed time your device spent active, idle with audio output, or idle without it. It displays foreground process totals, offers a configurable break reminder, and exports a PDF or JSON report. Built with C#, .NET 10 and Avalonia 11.
 
 ![ActiveRest workflow diagram, not a screenshot](docs/workflow.svg)
+
+The local **0.3.0-preview.2** runtime candidate targets .NET 10 LTS and directly selects patched `Tmds.DBus.Protocol` 0.21.3 instead of the vulnerable transitive 0.20.0. Stable .NET 10 SDK selection and complete-graph NuGet auditing apply to app/tests and the CI source; known vulnerability warnings fail restore. Existing tracking/history/settings formats and Avalonia 11.2.7 are retained. [Runtime verification](docs/RUNTIME.md) separates new-runtime acceptance from the historical .NET 9 appearance evidence below. No public installer or remote CI result is claimed.
 
 ![ActiveRest Windows main window with tracking off, historical capture before the appearance revision](docs/windows-main-preview.jpg)
 
@@ -10,7 +12,7 @@ The [detailed report preview](docs/windows-report-preview.jpg) shows the empty s
 
 ## Try it
 
-Requires Windows with the .NET 9 SDK for source builds. From the repository root:
+Requires Windows with a stable .NET 10 SDK for source builds. `global.json` selects stable .NET 10 feature bands starting at 10.0.100. From the repository root:
 
 ```powershell
 dotnet run --project ActiveRest.csproj

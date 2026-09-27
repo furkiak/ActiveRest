@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Local runtime candidate 0.3.0-preview.2
+
+- Target .NET 10 LTS for app/tests and Windows CI source; select stable .NET 10 SDK feature bands with global.json.
+- Replace vulnerable transitive Tmds.DBus.Protocol 0.20.0 with patched 0.21.3; audit the full app/test dependency graph and fail restore on NU1901–NU1904.
+- Retain Avalonia 11.2.7, opt-in tracking and existing data/settings formats. Record runtime-specific tests and native package checks independently; preserve prior packages and profiles.
+
+### Earlier appearance candidate 0.3.0-preview.1
+
 - Add Light/Dark and 100/150/200% font preferences stored atomically in the selected profile; legacy settings default to Light/100%, unsupported values/backup files remain preserved.
 - Apply appearance resources to open/new windows without changing Windows DPI, activity history or tracking state. Leave an unchanged normal startup preference untouched when saving.
 - Use opaque theme surfaces with measured text/control/focus tokens, wrapping actions and scrollable main/settings/report layouts; scale the existing date picker and its flyout resources.
