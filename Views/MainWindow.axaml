@@ -3,147 +3,67 @@
         xmlns:vm="using:ActiveRest.ViewModels"
         x:Class="ActiveRest.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="ActiveRest"
-        Icon="/Assets/activerest.ico"
-        Width="420" Height="700" MinWidth="380" MinHeight="650"
-        SystemDecorations="Full"
-        Background="#F4F7FC"
-        WindowStartupLocation="CenterScreen"
-        ShowInTaskbar="True"
-        RequestedThemeVariant="Light">
-        
-    <Border Background="#F4F7FC"
-            CornerRadius="22"
-            BorderBrush="#D6E2F2"
-            BorderThickness="1" 
-            Margin="10" 
-            BoxShadow="0 16 48 0 #300B2450">
-        
-        <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" Margin="20">
-            
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
-                    
-                    <TextBlock Text="ActiveRest" FontSize="22" FontWeight="ExtraBold" Foreground="#102849" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <Button Grid.Column="1" Click="OpenSettings_Click" Background="Transparent" BorderThickness="0" Padding="5"
-                        ToolTip.Tip="Settings" AutomationProperties.Name="Settings">
-                    <Path Data="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.97 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" 
-                          Fill="#52657A" Width="22" Height="22" Stretch="Uniform"/>
+        Title="ActiveRest" Icon="/Assets/activerest.ico"
+        Width="460" Height="740" MinWidth="360" MinHeight="480"
+        SystemDecorations="Full" WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24" Spacing="18">
+            <Grid ColumnDefinitions="*, Auto">
+                <TextBlock Text="ActiveRest" FontSize="{DynamicResource TitleFontSize}" FontWeight="Bold"/>
+                <Button Grid.Column="1" Click="OpenSettings_Click" ToolTip.Tip="Settings"
+                        AutomationProperties.Name="Settings" VerticalAlignment="Center">
+                    <TextBlock Text="Settings" FontSize="{DynamicResource CaptionFontSize}"/>
                 </Button>
             </Grid>
-
-            <Border Grid.Row="1" Background="#E5E5EA" CornerRadius="8" Padding="2">
-                <UniformGrid Columns="4" Rows="1">
-                    <Button Content="Day" Command="{Binding ChangeViewModeCommand}" CommandParameter="Daily" 
-                            Background="{Binding DailyButtonColor}" Foreground="#1D1D1F" 
-                            FontSize="11" FontWeight="SemiBold" CornerRadius="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                    
-                    <Button Content="Week" Command="{Binding ChangeViewModeCommand}" CommandParameter="Weekly" 
-                            Background="{Binding WeeklyButtonColor}" Foreground="#52657A"
-                            FontSize="11" FontWeight="SemiBold" CornerRadius="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                    
-                    <Button Content="Month" Command="{Binding ChangeViewModeCommand}" CommandParameter="Monthly"
-                            Background="{Binding MonthlyButtonColor}" Foreground="#52657A"
-                            FontSize="11" FontWeight="SemiBold" CornerRadius="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                    
-                    <Button Content="Year" Command="{Binding ChangeViewModeCommand}" CommandParameter="Yearly" 
-                            Background="{Binding YearlyButtonColor}" Foreground="#52657A"
-                            FontSize="11" FontWeight="SemiBold" CornerRadius="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                </UniformGrid>
-            </Border>
-
-            <StackPanel Grid.Row="2" Margin="0,16,0,14" Spacing="7">
-                <TextBlock Text="{Binding CurrentModeText}" Foreground="#102849" FontSize="17" FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
-                <TextBlock Text="{Binding TrackingStatusText}" Foreground="#315C85" FontSize="12" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding DataStatusText}" Foreground="#8A4824" FontSize="11" TextWrapping="Wrap"/>
+            <WrapPanel>
+                <ToggleButton Classes="period" Content="Day" Command="{Binding ChangeViewModeCommand}" CommandParameter="Daily"
+                              IsChecked="{Binding IsDailyView, Mode=OneWay}" Margin="0,0,8,8"/>
+                <ToggleButton Classes="period" Content="Week" Command="{Binding ChangeViewModeCommand}" CommandParameter="Weekly"
+                              IsChecked="{Binding IsWeeklyView, Mode=OneWay}" Margin="0,0,8,8"/>
+                <ToggleButton Classes="period" Content="Month" Command="{Binding ChangeViewModeCommand}" CommandParameter="Monthly"
+                              IsChecked="{Binding IsMonthlyView, Mode=OneWay}" Margin="0,0,8,8"/>
+                <ToggleButton Classes="period" Content="Year" Command="{Binding ChangeViewModeCommand}" CommandParameter="Yearly"
+                              IsChecked="{Binding IsYearlyView, Mode=OneWay}" Margin="0,0,8,8"/>
+            </WrapPanel>
+            <StackPanel Spacing="8">
+                <TextBlock Text="{Binding CurrentModeText}" FontSize="{DynamicResource SectionFontSize}" FontWeight="Bold"/>
+                <TextBlock Text="{Binding TrackingStatusText}" Foreground="{DynamicResource AccentText}"
+                           FontSize="{DynamicResource CaptionFontSize}" AutomationProperties.LiveSetting="Polite"/>
+                <TextBlock Text="{Binding DataStatusText}" Foreground="{DynamicResource WarningText}" FontSize="{DynamicResource CaptionFontSize}"/>
                 <Button Content="{Binding PauseButtonText}" Command="{Binding TogglePauseCommand}"
-                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                        Background="#E4EFFB" Foreground="#174C84" BorderBrush="#BDD5EF"
-                        BorderThickness="1" CornerRadius="12" Padding="9" FontWeight="SemiBold"/>
-             </StackPanel>
-
-            <StackPanel Grid.Row="3" Spacing="12">
-                <Border Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#F0F0F0" BorderThickness="1" BoxShadow="0 2 10 0 #03000000">
-                    <Grid ColumnDefinitions="Auto, *, Auto">
-                        <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="#F5F5F7">
-                            <Path Data="M12,2A10,10 0 1,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 1,1 20,12A8,8 0 0,1 12,20M12,6A6,6 0 1,0 18,12A6,6 0 0,0 12,6M12,16A4,4 0 1,1 16,12A4,4 0 0,1 12,16M12,10A2,2 0 1,0 14,12A2,2 0 0,0 12,10Z" 
-                                  Fill="#52657A" Width="18" Height="18" Stretch="Uniform"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
-                            <TextBlock Text="Focused Work" Foreground="#1D1D1F" FontSize="12" FontWeight="SemiBold"/>
-                        </StackPanel>
-                        <TextBlock Grid.Column="2" Text="{Binding FocusedTimeText}" Foreground="#147542" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
-                    </Grid>
-                </Border>
-
-                <Border Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#F0F0F0" BorderThickness="1" BoxShadow="0 2 10 0 #03000000">
-                    <Grid ColumnDefinitions="Auto, *, Auto">
-                        <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="#F5F5F7">
-                            <Path Data="M12,2A9,9 0 0,0 3,11V19A2,2 0 0,0 5,21H6A2,2 0 0,0 8,19V14A2,2 0 0,0 6,12H5V11A7,7 0 0,1 19,11V12H18A2,2 0 0,0 16,14V19A2,2 0 0,0 18,21H19A2,2 0 0,0 21,19V11A9,9 0 0,0 12,2Z" 
-                                  Fill="#52657A" Width="18" Height="18" Stretch="Uniform"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
-                            <TextBlock Text="Audio active while idle" Foreground="#1D1D1F" FontSize="12" FontWeight="SemiBold"/>
-                        </StackPanel>
-                        <TextBlock Grid.Column="2" Text="{Binding RelaxedTimeText}" Foreground="#145EA8" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
-                    </Grid>
-                </Border>
-
-                <Border Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#F0F0F0" BorderThickness="1" BoxShadow="0 2 10 0 #03000000">
-                    <Grid ColumnDefinitions="Auto, *, Auto">
-                        <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="#F5F5F7">
-                            <Path Data="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5A2,2 0 0,0 20,3M16,13A2,2 0 0,1 14,15H8A2,2 0 0,1 6,13V5H16Z" 
-                                  Fill="#52657A" Width="18" Height="18" Stretch="Uniform"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
-                            <TextBlock Text="Rest" Foreground="#1D1D1F" FontSize="12" FontWeight="SemiBold"/>
-                        </StackPanel>
-                        <TextBlock Grid.Column="2" Text="{Binding BreakTimeText}" Foreground="#B0342B" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
-                    </Grid>
-                </Border>
+                        Background="{DynamicResource SoftSurface}" HorizontalContentAlignment="Center" FontWeight="SemiBold"/>
             </StackPanel>
-
-            <Border Grid.Row="4" Margin="0,20,0,0" BorderBrush="#E5E5EA" BorderThickness="0,1,0,0" Padding="0,15,0,0">
-                <StackPanel Spacing="15">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" Spacing="6">
-                            <Path Data="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20M19,8H5V6H19V8Z" 
-                                  Fill="#52657A" Width="14" Height="14" Stretch="Uniform"/>
-                            <TextBlock Text="Date" Foreground="#52657A" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <DatePicker Grid.Column="1" SelectedDate="{Binding SelectedDate}" 
-                                    Background="#FFFFFF" BorderBrush="#E5E5EA" BorderThickness="1" CornerRadius="6" 
-                                    Foreground="#1D1D1F" VerticalAlignment="Center" MinWidth="130" Height="32"/>
-                    </Grid>
-
-                    <Button Content="Detailed report" Click="OpenDetails_Click"
-                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
-                            Padding="12" CornerRadius="8" FontWeight="SemiBold" FontSize="13">
-                        <Button.Styles>
-                            <Style Selector="Button">
-                                <Setter Property="Background" Value="#F5F5F7"/>
-                                <Setter Property="Foreground" Value="#52657A"/>
-                                <Setter Property="BorderBrush" Value="#E5E5EA"/>
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="Transitions">
-                                    <Transitions>
-                                        <BrushTransition Property="Background" Duration="0:0:0.2"/>
-                                        <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
-                                    </Transitions>
-                                </Setter>
-                            </Style>
-                            <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                <Setter Property="Background" Value="#2C2C2E"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Setter Property="BorderBrush" Value="#2C2C2E"/>
-                            </Style>
-                        </Button.Styles>
-                    </Button>
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Focused Work" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding FocusedTimeText}" Foreground="{DynamicResource FocusCategory}"
+                               FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold"/>
                 </StackPanel>
             </Border>
-
-        </Grid>
-    </Border>
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Audio active while idle" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding RelaxedTimeText}" Foreground="{DynamicResource AudioCategory}"
+                               FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Rest" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding BreakTimeText}" Foreground="{DynamicResource RestCategory}"
+                               FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+            <StackPanel Spacing="10">
+                <TextBlock Text="Report date" Foreground="{DynamicResource SecondaryText}"/>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <DatePicker SelectedDate="{Binding SelectedDate}" AutomationProperties.Name="Report date"
+                                HorizontalAlignment="Left"/>
+                </ScrollViewer>
+                <Button Click="OpenDetails_Click" HorizontalContentAlignment="Center" FontWeight="SemiBold">
+                    <TextBlock Text="Detailed report"/>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

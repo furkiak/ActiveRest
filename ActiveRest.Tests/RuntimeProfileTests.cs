@@ -86,6 +86,12 @@ public sealed class RuntimeProfileTests
     [InlineData("{partial")]
     [InlineData("{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"FutureVersionField\":1}")]
     [InlineData("{\"EyeRestIntervalMinutes\":1,\"IsEyeRestEnabled\":true}")]
+    [InlineData("{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"AppearanceTheme\":\"Auto\"}")]
+    [InlineData("{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"AppearanceTheme\":null}")]
+    [InlineData("{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"AppearanceTheme\":1}")]
+    [InlineData("{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"TextScalePercent\":125}")]
+    [InlineData("{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"TextScalePercent\":\"200\"}")]
+    [InlineData("{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"TextScalePercent\":200.0}")]
     public void Damaged_or_newer_settings_are_not_silently_overwritten(string content)
     {
         using var folder = new TestFolder();
@@ -127,6 +133,85 @@ public sealed class RuntimeProfileTests
         Assert.Throws<InvalidDataException>(() => data.SaveSettings(new AppSettings { EyeRestIntervalMinutes = 5 }));
         Assert.Equal(original, File.ReadAllBytes(path));
         Assert.Equal("{partial", File.ReadAllText(path + ".bak"));
+    }
+
+    [Fact]
+    public void Legacy_settings_upgrade_and_appearance_restart_keep_history_and_previous_settings_intact()
+    {
+        using var folder = new TestFolder();
+        var path = Path.Combine(folder.Path, "settings.json");
+        var legacy = "{\"EyeRestIntervalMinutes\":35,\"IsEyeRestEnabled\":false,\"WeekStartsOnSunday\":true}";
+        File.WriteAllText(path, legacy);
+        var data = new DataManager(folder.Path);
+        data.SaveOrUpdateToday(new DailyStat { TotalFocusedSeconds = 12 });
+        var history = File.ReadAllBytes(Path.Combine(folder.Path, "stats.json"));
+        var settings = data.LoadSettings();
+        Assert.Equal("Light", settings.AppearanceTheme);
+        Assert.Equal(100, settings.TextScalePercent);
+        Assert.True(data.CanWriteSettings);
+        settings.AppearanceTheme = "Dark";
+        settings.TextScalePercent = 200;
+        data.SaveSettings(settings);
+        Assert.Equal(legacy, File.ReadAllText(path + ".bak"));
+        var restart = new DataManager(folder.Path);
+        var reopened = restart.LoadSettings();
+        Assert.Equal("Dark", reopened.AppearanceTheme);
+        Assert.Equal(200, reopened.TextScalePercent);
+        Assert.Equal(35, reopened.EyeRestIntervalMinutes);
+        Assert.False(reopened.IsEyeRestEnabled);
+        Assert.True(reopened.WeekStartsOnSunday);
+        var previous = File.ReadAllBytes(path);
+        reopened.AppearanceTheme = "Light";
+        reopened.TextScalePercent = 150;
+        restart.SaveSettings(reopened);
+        Assert.Equal(previous, File.ReadAllBytes(path + ".bak"));
+        var nextRestart = new DataManager(folder.Path).LoadSettings();
+        Assert.Equal("Light", nextRestart.AppearanceTheme);
+        Assert.Equal(150, nextRestart.TextScalePercent);
+        Assert.Equal(history, File.ReadAllBytes(Path.Combine(folder.Path, "stats.json")));
+        Assert.Empty(Directory.GetFiles(folder.Path, "*.tmp"));
+    }
+
+    [Theory]
+    [InlineData("Auto", 100)]
+    [InlineData("Light", 125)]
+    [InlineData("Dark", 0)]
+    [InlineData("dark", 200)]
+    public void Unsupported_appearance_save_cannot_replace_valid_settings_or_history(string theme, int scale)
+    {
+        using var folder = new TestFolder();
+        var data = new DataManager(folder.Path);
+        data.SaveSettings(new AppSettings { AppearanceTheme = "Dark", TextScalePercent = 150 });
+        data.SaveOrUpdateToday(new DailyStat { TotalBreakSeconds = 9 });
+        var path = Path.Combine(folder.Path, "settings.json");
+        var original = File.ReadAllBytes(path);
+        var history = File.ReadAllBytes(Path.Combine(folder.Path, "stats.json"));
+        Assert.Throws<ArgumentOutOfRangeException>(() => data.SaveSettings(new AppSettings
+            { AppearanceTheme = theme, TextScalePercent = scale }));
+        Assert.Equal(original, File.ReadAllBytes(path));
+        Assert.Equal(history, File.ReadAllBytes(Path.Combine(folder.Path, "stats.json")));
+        Assert.False(File.Exists(path + ".bak"));
+        Assert.Empty(Directory.GetFiles(folder.Path, "*.tmp"));
+        Assert.Equal(150, new DataManager(folder.Path).LoadSettings().TextScalePercent);
+    }
+
+    [Fact]
+    public void Unsupported_appearance_backup_blocks_save_without_downgrading_either_copy()
+    {
+        using var folder = new TestFolder();
+        var data = new DataManager(folder.Path);
+        data.SaveSettings(new AppSettings { AppearanceTheme = "Dark", TextScalePercent = 200 });
+        var path = Path.Combine(folder.Path, "settings.json");
+        var backup = "{\"EyeRestIntervalMinutes\":20,\"IsEyeRestEnabled\":true,\"TextScalePercent\":250}";
+        File.WriteAllText(path + ".bak", backup);
+        var original = File.ReadAllBytes(path);
+        var safe = data.LoadSettings();
+        Assert.Equal("Light", safe.AppearanceTheme);
+        Assert.Equal(100, safe.TextScalePercent);
+        Assert.False(data.CanWriteSettings);
+        Assert.Throws<InvalidDataException>(() => data.SaveSettings(new AppSettings()));
+        Assert.Equal(original, File.ReadAllBytes(path));
+        Assert.Equal(backup, File.ReadAllText(path + ".bak"));
     }
 
     [Fact]

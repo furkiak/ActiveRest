@@ -1,97 +1,79 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ActiveRest.Views.SettingsWindow"
-        Title="Settings" Icon="/Assets/activerest.ico" Width="460" Height="710" MinWidth="420" MinHeight="650"
-        SystemDecorations="Full"
-        Background="#F4F7FC"
-        WindowStartupLocation="CenterOwner"
-        RequestedThemeVariant="Light"
-        FontFamily="Segoe UI, Arial, sans-serif">
-
-    <Window.Styles>
-        <Style Selector="Button.CounterBtn">
-            <Setter Property="Background" Value="#E5E5EA"/><Setter Property="Foreground" Value="#1D1D1F"/>
-            <Setter Property="BorderThickness" Value="0"/><Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Width" Value="32"/><Setter Property="Height" Value="32"/>
-            <Setter Property="FontSize" Value="18"/><Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-    </Window.Styles>
-
-    <Border Background="#F4F7FC" CornerRadius="22" BorderBrush="#D6E2F2" BorderThickness="1" Margin="10" BoxShadow="0 16 48 0 #200B2450">
-        <Grid RowDefinitions="Auto, *, Auto" Margin="25">
-            
-            <Grid Grid.Row="0" Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="Application Settings" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
-                    <TextBlock Text="Local tracking and privacy controls" FontSize="12" Foreground="#536B86"/>
-                    <TextBlock Name="ProfileDescription" FontSize="11" Foreground="#536B86" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Grid>
-
-            <StackPanel Grid.Row="1" Spacing="14">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Break reminder" FontSize="13" FontWeight="SemiBold" Foreground="#1D1D1F"/>
-                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
-                        <Grid ColumnDefinitions="*, Auto">
-                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
-                                <Button Classes="CounterBtn" Content="-" Click="Minus_Click" AutomationProperties.Name="Decrease reminder interval"/>
-                                <Border Background="#F5F5F7" CornerRadius="8" Width="90" Height="32">
-                                    <TextBlock Name="IntervalValueText" Text="20 Minute" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold"/>
-                                </Border>
-                                <Button Classes="CounterBtn" Content="+" Click="Plus_Click" AutomationProperties.Name="Increase reminder interval"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                    <CheckBox Name="EyeRestCheck" Content="Enable reminder after the chosen focus interval" FontSize="12"/>
-                </StackPanel>
-
-                <CheckBox Name="SundayCheck" Content="Weeks start on Sunday (default: Monday)" FontSize="12"/>
-
-                <StackPanel Spacing="10">
-                    <TextBlock Text="System Preferences" FontSize="13" FontWeight="SemiBold" Foreground="#1D1D1F"/>
-                    <Border Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <TextBlock Text="Start with Windows" VerticalAlignment="Center" Foreground="#52657A" FontSize="12"/>
-                            <CheckBox Name="AutoStartCheck" Grid.Column="1" VerticalAlignment="Center" AutomationProperties.Name="Start with Windows"/>
-                        </Grid>
-                    </Border>
-                    <TextBlock Name="StartupDescription" Text="Optional startup at Windows sign-in; tracking still starts off." FontSize="11" Foreground="#536B86" TextWrapping="Wrap"/>
-                </StackPanel>
-                <Border Background="#E7F0FB" CornerRadius="12" Padding="12" BorderBrush="#C9DCF2" BorderThickness="1">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Your data stays on this device" FontWeight="SemiBold" Foreground="#174C84"/>
-                        <TextBlock Text="Tracking starts only after you choose Start tracking. Process names, daily durations and settings stay on this device." TextWrapping="Wrap" FontSize="11" Foreground="#315C85"/>
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <Button Content="Export JSON" Click="Export_Click" Padding="8,5"/>
-                            <Button Content="Open folder" Click="OpenDataFolder_Click" Padding="8,5"/>
-                            <Button Content="Delete history" Click="Delete_Click" Padding="8,5"/>
-                        </StackPanel>
-                        <TextBlock Name="FeedbackText" TextWrapping="Wrap" FontSize="11" Foreground="#8A4824"/>
-                    </StackPanel>
-                </Border>
+        Title="Settings" Icon="/Assets/activerest.ico"
+        Width="500" Height="760" MinWidth="360" MinHeight="480"
+        SystemDecorations="Full" WindowStartupLocation="CenterOwner">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24" Spacing="20">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Application Settings" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold"/>
+                <TextBlock Text="Local tracking and appearance controls" Foreground="{DynamicResource SecondaryText}" FontSize="{DynamicResource CaptionFontSize}"/>
+                <TextBlock Name="ProfileDescription" Foreground="{DynamicResource SecondaryText}" FontSize="{DynamicResource CaptionFontSize}"/>
             </StackPanel>
-
-            <Button Grid.Row="2" Content="Save Changes" Click="Save_Click" 
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
-                    Padding="14" CornerRadius="10" FontWeight="Bold" Margin="0,10,0,0">
-                <Button.Styles>
-                    <Style Selector="Button">
-                        <Setter Property="Background" Value="#2C2C2E"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="Transitions">
-                            <Transitions>
-                                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
-                            </Transitions>
-                        </Setter>
-                    </Style>
-                    <Style Selector="Button:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#1D1D1F"/>
-                        <Setter Property="Foreground" Value="White"/>
-                    </Style>
-                </Button.Styles>
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Appearance" FontSize="{DynamicResource SectionFontSize}" FontWeight="SemiBold"/>
+                    <TextBlock Text="Theme" Foreground="{DynamicResource SecondaryText}"/>
+                    <ComboBox Name="ThemeChoice" HorizontalAlignment="Stretch" AutomationProperties.Name="Appearance theme">
+                        <ComboBoxItem Content="Light"/>
+                        <ComboBoxItem Content="Dark"/>
+                    </ComboBox>
+                    <TextBlock Text="Text size" Foreground="{DynamicResource SecondaryText}"/>
+                    <ComboBox Name="TextSizeChoice" HorizontalAlignment="Stretch" AutomationProperties.Name="Text size">
+                        <ComboBoxItem Content="100%"/>
+                        <ComboBoxItem Content="150%"/>
+                        <ComboBoxItem Content="200%"/>
+                    </ComboBox>
+                    <TextBlock Text="Save Changes applies the selected theme and text size to all windows. Text size changes fonts, independently of display scaling."
+                               Foreground="{DynamicResource SecondaryText}" FontSize="{DynamicResource CaptionFontSize}"/>
+                    <TextBlock Text="Opaque surfaces. No background blur or decorative motion."
+                               Foreground="{DynamicResource AccentText}" FontSize="{DynamicResource CaptionFontSize}"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Break reminder" FontSize="{DynamicResource SectionFontSize}" FontWeight="SemiBold"/>
+                    <WrapPanel>
+                        <Button Content="−" Click="Minus_Click" AutomationProperties.Name="Decrease reminder interval" Margin="0,0,10,8"/>
+                        <TextBlock Name="IntervalValueText" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,10,8"/>
+                        <Button Content="+" Click="Plus_Click" AutomationProperties.Name="Increase reminder interval" Margin="0,0,0,8"/>
+                    </WrapPanel>
+                    <CheckBox Name="EyeRestCheck">
+                        <TextBlock Text="Enable reminder after the chosen focus interval"/>
+                    </CheckBox>
+                    <CheckBox Name="SundayCheck">
+                        <TextBlock Text="Weeks start on Sunday (default: Monday)"/>
+                    </CheckBox>
+                </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Windows startup" FontSize="{DynamicResource SectionFontSize}" FontWeight="SemiBold"/>
+                    <CheckBox Name="AutoStartCheck" AutomationProperties.Name="Start with Windows">
+                        <TextBlock Text="Start with Windows"/>
+                    </CheckBox>
+                    <TextBlock Name="StartupDescription" Text="Optional startup at Windows sign-in; tracking still starts off."
+                               Foreground="{DynamicResource SecondaryText}" FontSize="{DynamicResource CaptionFontSize}"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource SoftSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Your data stays on this device" FontWeight="SemiBold" Foreground="{DynamicResource AccentText}"/>
+                    <TextBlock Text="Tracking starts only after you choose Start tracking. Process names, daily durations and settings stay on this device."
+                               Foreground="{DynamicResource SecondaryText}" FontSize="{DynamicResource CaptionFontSize}"/>
+                    <WrapPanel>
+                        <Button Content="Export JSON" Click="Export_Click" Margin="0,0,8,8"/>
+                        <Button Content="Open folder" Click="OpenDataFolder_Click" Margin="0,0,8,8"/>
+                        <Button Content="Delete history" Click="Delete_Click" Margin="0,0,8,8"/>
+                    </WrapPanel>
+                    <TextBlock Name="FeedbackText" Foreground="{DynamicResource WarningText}" FontSize="{DynamicResource CaptionFontSize}"
+                               AutomationProperties.LiveSetting="Polite"/>
+                </StackPanel>
+            </Border>
+            <Button Click="Save_Click" HorizontalContentAlignment="Center" FontWeight="Bold" Background="{DynamicResource SoftSurface}">
+                <TextBlock Text="Save Changes"/>
             </Button>
-
-        </Grid>
-    </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

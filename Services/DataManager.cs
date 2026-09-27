@@ -214,15 +214,19 @@ public sealed class DataManager
     private static AppSettings ReadSettings(string path)
     {
         var json = JToken.Parse(File.ReadAllText(path));
-        var allowed = new[] { "EyeRestIntervalMinutes", "IsEyeRestEnabled", "WeekStartsOnSunday" };
+        var allowed = new[] { "EyeRestIntervalMinutes", "IsEyeRestEnabled", "WeekStartsOnSunday", "AppearanceTheme", "TextScalePercent" };
         if (json is not JObject value || value.Properties().Any(p => !allowed.Contains(p.Name)) ||
             value["EyeRestIntervalMinutes"]?.Type != JTokenType.Integer ||
             value["IsEyeRestEnabled"]?.Type != JTokenType.Boolean ||
-            value["WeekStartsOnSunday"] is { Type: not JTokenType.Boolean })
+            value["WeekStartsOnSunday"] is { Type: not JTokenType.Boolean } ||
+            value["AppearanceTheme"] is { Type: not JTokenType.String } ||
+            value["TextScalePercent"] is { Type: not JTokenType.Integer })
             throw new JsonException("Settings have an unsupported or incomplete format.");
         var settings = value.ToObject<AppSettings>();
         if (settings is not { EyeRestIntervalMinutes: >= 5 and <= 120 })
             throw new JsonException("Reminder settings are outside the supported range.");
+        if (!HasSupportedAppearance(settings))
+            throw new JsonException("Appearance settings are unsupported; preserve them for the matching version.");
         return settings;
     }
 
@@ -230,6 +234,8 @@ public sealed class DataManager
     {
         if (settings.EyeRestIntervalMinutes is < 5 or > 120)
             throw new ArgumentOutOfRangeException(nameof(settings), "Reminder interval must be between 5 and 120 minutes.");
+        if (!HasSupportedAppearance(settings))
+            throw new ArgumentOutOfRangeException(nameof(settings), "Choose Light or Dark and text size 100, 150 or 200 percent.");
         lock (_gate)
         {
             LoadSettings();
@@ -237,6 +243,9 @@ public sealed class DataManager
             WriteAtomically(_settingsPath, JsonConvert.SerializeObject(settings, Formatting.Indented));
         }
     }
+
+    private static bool HasSupportedAppearance(AppSettings settings) =>
+        settings.AppearanceTheme is "Light" or "Dark" && settings.TextScalePercent is 100 or 150 or 200;
 
     private static void WriteAtomically(string path, string contents)
     {

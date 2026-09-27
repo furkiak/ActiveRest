@@ -17,6 +17,7 @@ namespace ActiveRest.Views
         private MainWindowViewModel? _viewModel;
         private AppSettings _settings;
         private int _currentInterval;
+        private bool _initialAutoStart;
 
         public SettingsWindow() : this(new DataManager(), null) { }
 
@@ -36,7 +37,8 @@ namespace ActiveRest.Views
             var autoStartControl = this.FindControl<CheckBox>("AutoStartCheck");
             if (autoStartControl != null)
             {
-                autoStartControl.IsChecked = _startupService.IsAutoStartEnabled();
+                _initialAutoStart = _startupService.IsAutoStartEnabled();
+                autoStartControl.IsChecked = _initialAutoStart;
                 autoStartControl.IsEnabled = _startupService.CanSetAutoStart;
             }
             if (_dataManager.Profile.IsSeparate)
@@ -48,6 +50,8 @@ namespace ActiveRest.Views
                 ? "Separate profile · " : "Data folder · ") + _dataManager.DataFolder;
             this.FindControl<CheckBox>("EyeRestCheck")!.IsChecked = _settings.IsEyeRestEnabled;
             this.FindControl<CheckBox>("SundayCheck")!.IsChecked = _settings.WeekStartsOnSunday;
+            this.FindControl<ComboBox>("ThemeChoice")!.SelectedIndex = _settings.AppearanceTheme == "Dark" ? 1 : 0;
+            this.FindControl<ComboBox>("TextSizeChoice")!.SelectedIndex = _settings.TextScalePercent switch { 150 => 1, 200 => 2, _ => 0 };
             if (_dataManager.SettingsRecoveryNotice != null) ShowFeedback(_dataManager.SettingsRecoveryNotice);
         }
 
@@ -74,10 +78,15 @@ namespace ActiveRest.Views
                 _settings.EyeRestIntervalMinutes = _currentInterval;
                 _settings.IsEyeRestEnabled = this.FindControl<CheckBox>("EyeRestCheck")!.IsChecked == true;
                 _settings.WeekStartsOnSunday = this.FindControl<CheckBox>("SundayCheck")!.IsChecked == true;
+                _settings.AppearanceTheme = this.FindControl<ComboBox>("ThemeChoice")!.SelectedIndex == 1 ? "Dark" : "Light";
+                _settings.TextScalePercent = this.FindControl<ComboBox>("TextSizeChoice")!.SelectedIndex switch { 1 => 150, 2 => 200, _ => 100 };
                 _dataManager.SaveSettings(_settings);
+                AppearanceService.Apply(_settings);
                 _viewModel?.ReloadSettings();
                 var autoStartControl = this.FindControl<CheckBox>("AutoStartCheck");
-                if (_startupService.CanSetAutoStart) _startupService.SetAutoStart(autoStartControl?.IsChecked ?? false);
+                var requestedAutoStart = autoStartControl?.IsChecked ?? false;
+                if (_startupService.CanSetAutoStart && requestedAutoStart != _initialAutoStart)
+                    _startupService.SetAutoStart(requestedAutoStart);
                 this.Close();
             }
             catch (Exception ex) { ShowFeedback($"Could not save all settings: {ex.Message}"); }
@@ -105,25 +114,26 @@ namespace ActiveRest.Views
         {
             var prompt = new Window
             {
-                Title = "Delete local history?", Width = 380, Height = 180,
+                Title = "Delete local history?", Width = 420, MinWidth = 320, MaxHeight = 650,
+                SizeToContent = SizeToContent.Height,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner
             };
-            prompt.Content = new StackPanel
+            prompt.Content = new ScrollViewer { Content = new StackPanel
                 {
                     Margin = new Avalonia.Thickness(20), Spacing = 15,
                     Children =
                     {
                         new TextBlock { Text = "Delete all local activity history and its backup? Export first if you want to keep a copy.", TextWrapping = Avalonia.Media.TextWrapping.Wrap },
-                        new StackPanel
+                        new WrapPanel
                         {
-                            Orientation = Orientation.Horizontal, Spacing = 10,
+                            Orientation = Orientation.Horizontal,
                             Children =
                             {
                                 NewChoice("Cancel", false), NewChoice("Delete history", true)
                             }
                         }
                     }
-                };
+                } };
             if (await prompt.ShowDialog<bool>(this))
             {
                 try
@@ -137,7 +147,7 @@ namespace ActiveRest.Views
 
             Button NewChoice(string label, bool answer)
             {
-                var button = new Button { Content = label, Padding = new Avalonia.Thickness(12, 7) };
+                var button = new Button { Content = label, Padding = new Avalonia.Thickness(12, 7), Margin = new Avalonia.Thickness(0, 0, 10, 8) };
                 button.Click += (_, _) => prompt.Close(answer);
                 return button;
             }

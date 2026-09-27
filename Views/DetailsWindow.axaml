@@ -4,135 +4,74 @@
         xmlns:models="using:ActiveRest.Models"
         x:Class="ActiveRest.Views.DetailsWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="Detailed Analysis"
-        Icon="/Assets/activerest.ico"
-        Width="480" Height="660"
-        SystemDecorations="Full"
-        Background="#F5F5F7"
-        WindowStartupLocation="CenterOwner"
-        RequestedThemeVariant="Light"
-        FontFamily="Segoe UI, Ubuntu, Arial">
-
-    <Border Background="#F5F5F7" 
-            CornerRadius="16" 
-            BorderBrush="#E5E5EA" 
-            BorderThickness="1" 
-            Margin="10" 
-            BoxShadow="0 8 32 0 #20000000">
-        
-        <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="25">
-            
-            <Grid Grid.Row="0" Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="Detailed Analysis" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
-                    <TextBlock Text="Device usage summary and detailed application report" FontSize="12" Foreground="#52657A"/>
-                    <TextBlock Text="{Binding CurrentModeText}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="#102849" Margin="0,5,0,0"/>
-                </StackPanel>
-
-            </Grid>
-
-            <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="12" Padding="20" Margin="0,0,0,15" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
-                <StackPanel Spacing="15">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <TextBlock Grid.Column="0" Text="Total Session Duration" FontWeight="SemiBold" Foreground="#52657A"/>
-                        <TextBlock Grid.Column="1" Text="{Binding TotalUptimeText}" FontWeight="Bold" FontSize="14" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <Border CornerRadius="6" Height="12" ClipToBounds="True" IsVisible="{Binding HasSessionTime}">
+        Title="Detailed Analysis" Icon="/Assets/activerest.ico"
+        Width="520" Height="740" MinWidth="360" MinHeight="480"
+        SystemDecorations="Full" WindowStartupLocation="CenterOwner">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24" Spacing="18">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Detailed Analysis" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold"/>
+                <TextBlock Text="Device usage summary and detailed application report" FontSize="{DynamicResource CaptionFontSize}" Foreground="{DynamicResource SecondaryText}"/>
+                <TextBlock Text="{Binding CurrentModeText}" Foreground="{DynamicResource AccentText}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Total Session Duration" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding TotalUptimeText}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold"/>
+                    <Border CornerRadius="6" Height="14" ClipToBounds="True" IsVisible="{Binding HasSessionTime}"
+                            BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="{Binding ChartFocusWidth}" />
-                                <ColumnDefinition Width="{Binding ChartRelaxWidth}" />
-                                <ColumnDefinition Width="{Binding ChartBreakWidth}" />
+                                <ColumnDefinition Width="{Binding ChartFocusWidth}"/>
+                                <ColumnDefinition Width="{Binding ChartRelaxWidth}"/>
+                                <ColumnDefinition Width="{Binding ChartBreakWidth}"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="#2C2C2E" /> 
-                            <Border Grid.Column="1" Background="#8E8E93" /> 
-                            <Border Grid.Column="2" Background="#D1D1D6" /> 
+                            <Border Grid.Column="0" Background="{DynamicResource ChartFocus}"/>
+                            <Border Grid.Column="1" Background="{DynamicResource ChartAudio}"/>
+                            <Border Grid.Column="2" Background="{DynamicResource ChartRest}"/>
                         </Grid>
                     </Border>
-                    <TextBlock Text="No measured time in this period yet." IsVisible="{Binding NoSessionTime}" Foreground="#52657A" FontSize="12"/>
-
-                    <StackPanel Spacing="10" Margin="0,5,0,0">
-                        <Grid ColumnDefinitions="Auto, *, Auto">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
-                                <Ellipse Width="10" Height="10" Fill="#2C2C2E" VerticalAlignment="Center"/>
-                                <TextBlock Text="Focused Work" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="{Binding FocusStatText}" Foreground="#52657A" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto, *, Auto">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
-                                <Ellipse Width="10" Height="10" Fill="#8E8E93" VerticalAlignment="Center"/>
-                                <TextBlock Text="Audio active while idle" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="{Binding RelaxStatText}" Foreground="#52657A" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto, *, Auto">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
-                                <Ellipse Width="10" Height="10" Fill="#D1D1D6" VerticalAlignment="Center"/>
-                                <TextBlock Text="Rest" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="{Binding BreakStatText}" Foreground="#52657A" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                        </Grid>
+                    <TextBlock Text="No measured time in this period yet." IsVisible="{Binding NoSessionTime}" Foreground="{DynamicResource SecondaryText}"/>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Focused Work" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding FocusStatText}" Foreground="{DynamicResource SecondaryText}"/>
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Audio active while idle" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding RelaxStatText}" Foreground="{DynamicResource SecondaryText}"/>
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Rest" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding BreakStatText}" Foreground="{DynamicResource SecondaryText}"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
-
-            <Border Grid.Row="2" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
-                <Grid>
-                <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding AppUsageList}" Margin="15,10" IsVisible="{Binding HasAppUsage}">
+            <Border Background="{DynamicResource CardSurface}" BorderBrush="{DynamicResource ControlBoundary}" BorderThickness="1" CornerRadius="14" Padding="18">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding AppUsageList}" IsVisible="{Binding HasAppUsage}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:AppUsageItem">
-                                <Border BorderBrush="#F5F5F7" BorderThickness="0,0,0,1" Padding="0,10">
-                                    <Grid ColumnDefinitions="*, Auto, Auto">
-                                        <StackPanel Orientation="Horizontal" Grid.Column="0" Spacing="10">
-                                            <TextBlock Text="▪" Foreground="#D1D1D6" VerticalAlignment="Center" FontSize="16"/>
-                                            <TextBlock Text="{Binding AppName}" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding DurationText}" Foreground="#2C2C2E" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <Border Grid.Column="2" Background="#F5F5F7" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding PercentageText}" Foreground="#52657A" FontSize="11" FontWeight="Bold"/>
-                                        </Border>
-                                    </Grid>
-                                </Border>
+                                <StackPanel Spacing="5" Margin="0,0,0,16">
+                                    <TextBlock Text="{Binding AppName}" FontWeight="SemiBold"/>
+                                    <WrapPanel>
+                                        <TextBlock Text="{Binding DurationText}" Foreground="{DynamicResource SecondaryText}" Margin="0,0,12,0"/>
+                                        <TextBlock Text="{Binding PercentageText}" Foreground="{DynamicResource AccentText}"/>
+                                    </WrapPanel>
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </ScrollViewer>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6" IsVisible="{Binding NoAppUsage}">
-                    <TextBlock Text="No app activity recorded yet" FontWeight="SemiBold" Foreground="#1D1D1F" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Start tracking to see local process totals." Foreground="#52657A" FontSize="12" HorizontalAlignment="Center"/>
+                    <StackPanel Spacing="6" IsVisible="{Binding NoAppUsage}">
+                        <TextBlock Text="No app activity recorded yet" FontWeight="SemiBold"/>
+                        <TextBlock Text="Start tracking to see local process totals." Foreground="{DynamicResource SecondaryText}"/>
+                    </StackPanel>
                 </StackPanel>
-                </Grid>
             </Border>
-
-            <StackPanel Grid.Row="3" Margin="0,20,0,0" Spacing="8">
-                <Button Content="Export PDF summary" Click="ExportToPdf_Click"
-                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
-                        Padding="14" CornerRadius="10" FontWeight="Bold" FontSize="13">
-                    <Button.Styles>
-                        <Style Selector="Button">
-                            <Setter Property="Background" Value="#F5F5F7"/>
-                            <Setter Property="Foreground" Value="#1D1D1F"/>
-                            <Setter Property="BorderBrush" Value="#E5E5EA"/>
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="Transitions">
-                                <Transitions>
-                                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
-                                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
-                                </Transitions>
-                            </Setter>
-                        </Style>
-                        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                            <Setter Property="Background" Value="#2C2C2E"/>
-                            <Setter Property="Foreground" Value="#FFFFFF"/>
-                        </Style>
-                    </Button.Styles>
-                </Button>
-                <TextBlock Name="ExportFeedbackText" FontSize="11" Foreground="#315C85" TextWrapping="Wrap"/>
-            </StackPanel>
-
-        </Grid>
-    </Border>
+            <Button Click="ExportToPdf_Click" HorizontalContentAlignment="Center" FontWeight="Bold">
+                <TextBlock Text="Export PDF summary"/>
+            </Button>
+            <TextBlock Name="ExportFeedbackText" Foreground="{DynamicResource AccentText}" FontSize="{DynamicResource CaptionFontSize}"
+                       AutomationProperties.LiveSetting="Polite"/>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

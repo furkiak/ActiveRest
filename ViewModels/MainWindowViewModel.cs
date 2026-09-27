@@ -48,6 +48,10 @@ namespace ActiveRest.ViewModels
         [ObservableProperty] private string _dataStatusText = "";
         private string _currentMode = "Daily";
         private bool _followToday = true;
+        public bool IsDailyView => _currentMode == "Daily";
+        public bool IsWeeklyView => _currentMode == "Weekly";
+        public bool IsMonthlyView => _currentMode == "Monthly";
+        public bool IsYearlyView => _currentMode == "Yearly";
 
         public MainWindowViewModel(DataManager? dataManager = null, IActivityTracker? activityTracker = null)
         {
@@ -90,6 +94,10 @@ namespace ActiveRest.ViewModels
         private void ChangeViewMode(string mode)
         {
             _currentMode = mode;
+            OnPropertyChanged(nameof(IsDailyView));
+            OnPropertyChanged(nameof(IsWeeklyView));
+            OnPropertyChanged(nameof(IsMonthlyView));
+            OnPropertyChanged(nameof(IsYearlyView));
             DailyButtonColor = mode == "Daily" ? "#FFFFFF" : "Transparent";
             WeeklyButtonColor = mode == "Weekly" ? "#FFFFFF" : "Transparent";
             MonthlyButtonColor = mode == "Monthly" ? "#FFFFFF" : "Transparent";

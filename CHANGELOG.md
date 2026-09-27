@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add Light/Dark and 100/150/200% font preferences stored atomically in the selected profile; legacy settings default to Light/100%, unsupported values/backup files remain preserved.
+- Apply appearance resources to open/new windows without changing Windows DPI, activity history or tracking state. Leave an unchanged normal startup preference untouched when saving.
+- Use opaque theme surfaces with measured text/control/focus tokens, wrapping actions and scrollable main/settings/report layouts; scale the existing date picker and its flyout resources.
+- Remove decorative custom transitions and pressed scaling. Native keyboard, theme and 200% acceptance for this appearance revision remains pending; earlier native evidence is historical.
+- Extend persistence/reload checks to 38 passing tests, preserving the original 26 behavior checks. Prepare the local 0.3.0-preview.1 candidate; no public tag or installer has been published.
+
 - Keep the selected day/week/month/year period visible in the main view, detailed report and PDF, including year boundaries and changed week-start preferences.
 - Use numeric GridLength values for the activity bar; fix the incorrect equal thirds for a 100% focus report. Increase PDF secondary-text contrast.
 - Verify native separate-profile tracking, Pause/Resume, reminder persistence, JSON export, date selection and weekly PDF saving on Windows 11.

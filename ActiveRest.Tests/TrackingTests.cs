@@ -141,9 +141,10 @@ public class TrackingTests
         engine.StartTracking();
         for (var i = 0; i < 60; i++) { clock.Advance(TimeSpan.FromSeconds(4)); engine.RecordSample(); }
         Assert.Equal(0, reminders);
-        var updated = new AppSettings { EyeRestIntervalMinutes = 5 };
+        var updated = new AppSettings { EyeRestIntervalMinutes = 5, AppearanceTheme = "Dark", TextScalePercent = 200 };
         new DataManager(folder.Path).SaveSettings(updated);
         engine.ReloadSettings();
+        Assert.True(engine.IsRunning);
         for (var i = 0; i < 15; i++) { clock.Advance(TimeSpan.FromSeconds(4)); engine.RecordSample(); }
         Assert.Equal(1, reminders);
     }

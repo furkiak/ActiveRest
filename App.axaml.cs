@@ -61,9 +61,11 @@ namespace ActiveRest
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             { 
                 DisableAvaloniaDataAnnotationValidation();
+                var dataManager = new Services.DataManager();
+                Services.AppearanceService.Apply(dataManager.LoadSettings());
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = new MainWindowViewModel(dataManager),
                 };
             }
 
