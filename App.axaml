@@ -113,6 +113,15 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource ControlBoundary}"/>
         </Style>
+        <Style Selector="DatePicker /template/ Button#PART_FlyoutButton">
+            <Setter Property="AutomationProperties.Name" Value="Choose report date"/>
+        </Style>
+        <Style Selector="DatePickerPresenter /template/ Button#PART_AcceptButton">
+            <Setter Property="AutomationProperties.Name" Value="Apply date"/>
+        </Style>
+        <Style Selector="DatePickerPresenter /template/ Button#PART_DismissButton">
+            <Setter Property="AutomationProperties.Name" Value="Cancel date"/>
+        </Style>
         <Style Selector="Button:pressed, ToggleButton:pressed">
             <Setter Property="RenderTransform" Value="none"/>
         </Style>

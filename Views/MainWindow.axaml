@@ -8,13 +8,13 @@
         SystemDecorations="Full" WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24" Spacing="18">
-            <Grid ColumnDefinitions="*, Auto">
-                <TextBlock Text="ActiveRest" FontSize="{DynamicResource TitleFontSize}" FontWeight="Bold"/>
-                <Button Grid.Column="1" Click="OpenSettings_Click" ToolTip.Tip="Settings"
+            <WrapPanel>
+                <TextBlock Text="ActiveRest" FontSize="{DynamicResource TitleFontSize}" FontWeight="Bold" Margin="0,0,18,12" VerticalAlignment="Center"/>
+                <Button Click="OpenSettings_Click" ToolTip.Tip="Settings" Margin="0,0,0,12"
                         AutomationProperties.Name="Settings" VerticalAlignment="Center">
                     <TextBlock Text="Settings" FontSize="{DynamicResource CaptionFontSize}"/>
                 </Button>
-            </Grid>
+            </WrapPanel>
             <WrapPanel>
                 <ToggleButton Classes="period" Content="Day" Command="{Binding ChangeViewModeCommand}" CommandParameter="Daily"
                               IsChecked="{Binding IsDailyView, Mode=OneWay}" Margin="0,0,8,8"/>

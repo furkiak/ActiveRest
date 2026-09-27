@@ -5,7 +5,8 @@
 - Add Light/Dark and 100/150/200% font preferences stored atomically in the selected profile; legacy settings default to Light/100%, unsupported values/backup files remain preserved.
 - Apply appearance resources to open/new windows without changing Windows DPI, activity history or tracking state. Leave an unchanged normal startup preference untouched when saving.
 - Use opaque theme surfaces with measured text/control/focus tokens, wrapping actions and scrollable main/settings/report layouts; scale the existing date picker and its flyout resources.
-- Remove decorative custom transitions and pressed scaling. Native keyboard, theme and 200% acceptance for this appearance revision remains pending; earlier native evidence is historical.
+- Remove decorative custom transitions and pressed scaling. Exercise native Light/Dark, actual 100/150/200% fonts, keyboard scrolling, date cancellation, restart persistence and PDF export in a separate Windows profile; device-wide accessibility and release checks remain open.
+- Wrap the main title and Settings action at minimum width; give the date flyout and its accept/cancel buttons explicit accessibility names.
 - Extend persistence/reload checks to 38 passing tests, preserving the original 26 behavior checks. Prepare the local 0.3.0-preview.1 candidate; no public tag or installer has been published.
 
 - Keep the selected day/week/month/year period visible in the main view, detailed report and PDF, including year boundaries and changed week-start preferences.

@@ -35,10 +35,24 @@ Use the new package and a disposable **absolute** `--data-directory`, never the 
 4. While tracking in the disposable profile, change appearance only. Totals should continue without reset; Pause should still freeze totals. Check a selected week before/after and export the report. Font preference does not enlarge the PDF.
 5. Cancel the history-deletion dialog at 200%; all prompt/buttons must be readable and reachable. Verify native reminder sizing when due. Finish with normal history/settings/Run-entry hashes unchanged. Record any popup clipping, unexpected widget animation or low-contrast state rather than treating source palette results as complete native acceptance.
 
-The appearance UI acceptance, clean-machine installation and public release remain pending until native evidence is recorded. Historical screenshots and native tracking checks apply to the earlier layout.
+## Native Windows check, 27 September 2026
+
+The revised application was exercised on Windows 11 with a disposable absolute profile and synthetic initial totals. Light/100% legacy defaults opened correctly. Dark/200% saved, survived process exit/restart and remained selected on reopening Settings. Light/200% and Dark/150% were then saved through the native controls. These are real font changes; Windows display scaling was not changed.
+
+At the 360px main/settings minimum width, actions wrap and keyboard navigation scrolls the focused control into view. A title clipping problem found at 200% was corrected by wrapping the title and Settings action. Main, Settings and the detailed report were inspected at 200%; theme/font dropdown values, reminder text, duration cards and report controls remained readable. The native Fluent keyboard outline was visibly strong in both themes; this does not prove the custom focus token is used by every template.
+
+The date popup showed full day/month/year values at 200%. At 150% its explicit **Choose report date**, **Apply date** and **Cancel date** names appeared in Windows UI Automation. Cancelling from a maximized owner left the report date unchanged. The automation helper could not click a popup point outside a narrow owner window's capture bounds; the maximized-owner check is not evidence that every small-screen popup interaction passed.
+
+Changing appearance while tracking left tracking active and did not reset totals. Pause then froze totals across subsequent observations. A real PDF was saved from the Light/200% report and rendered for visual inspection: one readable page with the same fixed report layout and synthetic initial totals. Normal profile files and the Windows Run-entry digests matched the before/after snapshots exactly; the separate-profile startup control remained disabled.
+
+![Light theme, 200% text and minimum-width wrapped header](images/appearance-light-200-minimum.png)
+
+![Light theme report with 200% text](images/appearance-report-light-200.png)
+
+Native reminder delivery, history-deletion confirmation, normal startup/tray, physical sleep/midnight, screen-reader output, alternate Windows DPI, other display sizes and clean-machine installation are still pending. These observations and source palette ratios are not a WCAG conformance claim. Historical tracking/date/weekly JSON checks remain separate evidence for the earlier layout.
 
 ## Türkçe
 
-Açık/koyu tema ile %100/%150/%200 yazı tercihi yalnız seçilen profilin ayarına kaydedilir. Kaydetmeden pencereyi kapatmak görünümü değiştirmez. Fontlar büyür; DPI/Windows ekran ölçeği veya kişisel başlangıç ayarı değiştirilmez. Yüzeyler opaktır, blur yoktur. Kaynak renk hesapları ve 38 davranış testi, yeni görünümün native klavye ve %200 kabulü yerine geçmez. Yukarıdaki adımları yalnız ayrı deneme profilinde uygulayıp sonuçları kaydet.
+Açık/koyu tema ile %100/%150/%200 yazı tercihi yalnız seçilen profilin ayarına kaydedilir. Kaydetmeden pencereyi kapatmak görünümü değiştirmez. Fontlar büyür; DPI/Windows ekran ölçeği veya kişisel başlangıç ayarı değiştirilmez. Yüzeyler opaktır, blur yoktur. 38 davranış testine ek olarak ayrı profilde gerçek Windows tema/font kaydı, yeniden açılış, dar pencere, klavye odağı/kaydırma, takip sırasında görünüm değişimi, duraklatma ve PDF dışa aktarma kontrol edildi. Normal profil ve başlangıç kaydının hash değerleri değişmedi. Hatırlatıcı, silme onayı, tepsi, farklı DPI, ekran okuyucu ve temiz makine kontrolleri hâlâ açıktır; kaynak renk hesapları tam erişilebilirlik sertifikası değildir.
 
 The DatePicker sizing overrides follow the pinned [Avalonia 11.2.7 Fluent DatePicker source](https://github.com/AvaloniaUI/Avalonia/blob/11.2.7/src/Avalonia.Themes.Fluent/Controls/DatePicker.xaml); recheck these resource keys when upgrading Avalonia.
