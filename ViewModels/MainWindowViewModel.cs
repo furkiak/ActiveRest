@@ -65,6 +65,10 @@ namespace ActiveRest.ViewModels
                 DataStatusText = _dataManager.RecoveryNotice ?? "History needs recovery.";
             }
             else if (_dataManager.RecoveryNotice != null) DataStatusText = _dataManager.RecoveryNotice;
+            if (_dataManager.SettingsRecoveryNotice != null)
+                DataStatusText = string.Join(" ", new[] { DataStatusText, _dataManager.SettingsRecoveryNotice }.Where(x => !string.IsNullOrEmpty(x)));
+            else if (_dataManager.Profile.IsSeparate && string.IsNullOrEmpty(DataStatusText))
+                DataStatusText = "Separate profile · Windows startup disabled";
 
             _uiTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _uiTimer.Tick += UpdateUI;
@@ -167,7 +171,7 @@ namespace ActiveRest.ViewModels
         }
         public void ReloadSettings()
         {
-            _engine.ApplySettings(_dataManager.LoadSettings());
+            _engine.ReloadSettings();
             CalculateStats();
         }
 
@@ -214,6 +218,7 @@ namespace ActiveRest.ViewModels
             CalculateStats();
         }
         public string DataFolder => _dataManager.DataFolder;
+        internal DataManager DataStore => _dataManager;
 
         public void Dispose()
         {

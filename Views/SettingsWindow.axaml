@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ActiveRest.Views.SettingsWindow"
-        Title="Settings" Icon="/Assets/activerest.ico" Width="420" Height="640" MinWidth="400" MinHeight="620"
+        Title="Settings" Icon="/Assets/activerest.ico" Width="460" Height="710" MinWidth="420" MinHeight="650"
         SystemDecorations="Full"
         Background="#F4F7FC"
         WindowStartupLocation="CenterOwner"
@@ -25,6 +25,7 @@
                 <StackPanel>
                     <TextBlock Text="Application Settings" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
                     <TextBlock Text="Local tracking and privacy controls" FontSize="12" Foreground="#536B86"/>
+                    <TextBlock Name="ProfileDescription" FontSize="11" Foreground="#536B86" TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>
 
@@ -34,11 +35,11 @@
                     <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
                         <Grid ColumnDefinitions="*, Auto">
                              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
-                                <Button Classes="CounterBtn" Content="-" Click="Minus_Click"/>
+                                <Button Classes="CounterBtn" Content="-" Click="Minus_Click" AutomationProperties.Name="Decrease reminder interval"/>
                                 <Border Background="#F5F5F7" CornerRadius="8" Width="90" Height="32">
                                     <TextBlock Name="IntervalValueText" Text="20 Minute" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold"/>
                                 </Border>
-                                <Button Classes="CounterBtn" Content="+" Click="Plus_Click"/>
+                                <Button Classes="CounterBtn" Content="+" Click="Plus_Click" AutomationProperties.Name="Increase reminder interval"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -52,9 +53,10 @@
                     <Border Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
                         <Grid ColumnDefinitions="*, Auto">
                             <TextBlock Text="Start with Windows" VerticalAlignment="Center" Foreground="#52657A" FontSize="12"/>
-                            <CheckBox Name="AutoStartCheck" Grid.Column="1" VerticalAlignment="Center"/>
+                            <CheckBox Name="AutoStartCheck" Grid.Column="1" VerticalAlignment="Center" AutomationProperties.Name="Start with Windows"/>
                         </Grid>
                     </Border>
+                    <TextBlock Name="StartupDescription" Text="Optional startup at Windows sign-in; tracking still starts off." FontSize="11" Foreground="#536B86" TextWrapping="Wrap"/>
                 </StackPanel>
                 <Border Background="#E7F0FB" CornerRadius="12" Padding="12" BorderBrush="#C9DCF2" BorderThickness="1">
                     <StackPanel Spacing="6">

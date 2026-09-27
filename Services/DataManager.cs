@@ -15,27 +15,37 @@ public sealed class DataManager
     private readonly string _settingsPath;
 
     public string DataFolder { get; }
+    public StorageProfile Profile { get; }
     public string? RecoveryNotice { get; private set; }
+    public string? SettingsRecoveryNotice { get; private set; }
     public bool CanWrite { get; private set; } = true;
+    public bool CanWriteSettings { get; private set; } = true;
 
     public DataManager(string? dataFolder = null)
     {
-        DataFolder = dataFolder ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ActiveRest");
+        Profile = dataFolder == null ? AppStorage.Profile : AppStorage.SeparateProfile(dataFolder);
+        DataFolder = Profile.Directory;
+        AppStorage.EnsureNoLinks(DataFolder);
         Directory.CreateDirectory(DataFolder);
         _filePath = Path.Combine(DataFolder, "stats.json");
         _settingsPath = Path.Combine(DataFolder, "settings.json");
+        EnsureFilesAreNotLinked();
     }
 
     public List<DailyStat> LoadAllData()
     {
         lock (_gate)
         {
+            EnsureFilesAreNotLinked();
             if (!CanWrite) return new List<DailyStat>();
             if (!File.Exists(_filePath))
             {
                 if (!File.Exists(_filePath + ".bak")) return new List<DailyStat>();
                 try { return RestoreBackup(); }
+                catch (UnsupportedDataException)
+                {
+                    return BlockHistory("The history backup uses an unsupported format. Tracking is off and the file is preserved for manual recovery.");
+                }
                 catch (JsonException)
                 {
                     CanWrite = false;
@@ -44,12 +54,29 @@ public sealed class DataManager
                 }
             }
 
-            try { return ReadStats(_filePath); }
+            try
+            {
+                var stats = ReadStats(_filePath);
+                if (File.Exists(_filePath + ".bak"))
+                {
+                    try { ReadStats(_filePath + ".bak"); }
+                    catch (Exception ex) when (ex is JsonException or UnsupportedDataException)
+                    {
+                        return BlockHistory("The history backup needs recovery. Tracking is off so neither copy is overwritten or deleted.");
+                    }
+                }
+                return stats;
+            }
+            catch (UnsupportedDataException)
+            {
+                return BlockHistory("Local history uses an unsupported format. Tracking is off and all copies are preserved for manual recovery.");
+            }
             catch (JsonException)
             {
                 if (File.Exists(_filePath + ".bak"))
                 {
                     try { return RestoreBackup(); }
+                    catch (UnsupportedDataException) { /* Preserve the unreadable main and newer backup. */ }
                     catch (JsonException) { /* Both copies need manual recovery. */ }
                 }
 
@@ -59,6 +86,21 @@ public sealed class DataManager
             }
         }
     }
+
+    private List<DailyStat> BlockHistory(string notice)
+    {
+        CanWrite = false;
+        RecoveryNotice = notice;
+        return new List<DailyStat>();
+    }
+
+    private void EnsureFilesAreNotLinked()
+    {
+        foreach (var file in new[] { _filePath, _filePath + ".bak", _settingsPath, _settingsPath + ".bak" })
+            AppStorage.EnsureNoLinks(file);
+    }
+
+    private sealed class UnsupportedDataException(string message) : IOException(message);
 
     private List<DailyStat> RestoreBackup()
     {
@@ -80,16 +122,25 @@ public sealed class DataManager
     private static List<DailyStat> ReadStats(string path)
     {
         var json = JToken.Parse(File.ReadAllText(path));
+        if (json is not JArray) throw new UnsupportedDataException("History format is unsupported.");
+        var allowed = new[] { "Date", "FirstBootTime", "TotalFocusedSeconds", "TotalRelaxedSeconds", "TotalBreakSeconds", "AppUsageSeconds" };
+        if (((JArray)json).OfType<JObject>().Any(day => day.Properties().Any(p => !allowed.Contains(p.Name))))
+            throw new UnsupportedDataException("History contains unrecognized fields; preserve it for the matching application version.");
         if (json is not JArray array || array.Any(item => item is not JObject day ||
             day["Date"]?.Type != JTokenType.Date && day["Date"]?.Type != JTokenType.String ||
+            day["FirstBootTime"] == null || day["TotalFocusedSeconds"] == null ||
+            day["TotalRelaxedSeconds"] == null || day["TotalBreakSeconds"] == null ||
             day["AppUsageSeconds"] is not JObject))
             throw new JsonException("History must be an array of complete daily records.");
         var stats = json.ToObject<List<DailyStat>>()
             ?? throw new JsonException("History must be a JSON array.");
         if (stats.Any(x => x is null || x.Date == default || x.AppUsageSeconds is null ||
+            x.FirstBootTime == default ||
             !IsValidDuration(x.TotalFocusedSeconds) || !IsValidDuration(x.TotalRelaxedSeconds) ||
             !IsValidDuration(x.TotalBreakSeconds) || x.AppUsageSeconds.Values.Any(v => !IsValidDuration(v))))
             throw new JsonException("History contains an invalid day.");
+        if (stats.Select(x => x.Date.Date).Distinct().Count() != stats.Count)
+            throw new UnsupportedDataException("History has duplicate days; preserve all rows for manual reconciliation.");
         return stats;
     }
 
@@ -123,6 +174,14 @@ public sealed class DataManager
     {
         lock (_gate)
         {
+            LoadAllData();
+            if (!CanWrite) throw new InvalidDataException("Unreadable history is preserved. Copy and repair the files from Open folder before deleting history.");
+            if (File.Exists(_filePath + ".bak"))
+            {
+                try { ReadStats(_filePath + ".bak"); }
+                catch (Exception ex) when (ex is JsonException or UnsupportedDataException)
+                { throw new InvalidDataException("The backup needs manual recovery and was not deleted."); }
+            }
             if (File.Exists(_filePath)) File.Delete(_filePath);
             if (File.Exists(_filePath + ".bak")) File.Delete(_filePath + ".bak");
             CanWrite = true;
@@ -134,21 +193,49 @@ public sealed class DataManager
     {
         lock (_gate)
         {
-            if (!File.Exists(_settingsPath)) return new AppSettings();
+            EnsureFilesAreNotLinked();
+            if (!File.Exists(_settingsPath) && !File.Exists(_settingsPath + ".bak")) return new AppSettings();
             try
             {
-                var settings = JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(_settingsPath));
-                return settings is { EyeRestIntervalMinutes: >= 5 and <= 120 } ? settings : new AppSettings();
+                if (!File.Exists(_settingsPath)) throw new JsonException("Settings backup needs manual recovery.");
+                var settings = ReadSettings(_settingsPath);
+                if (File.Exists(_settingsPath + ".bak")) ReadSettings(_settingsPath + ".bak");
+                return settings;
             }
-            catch (JsonException) { return new AppSettings(); }
+            catch (JsonException)
+            {
+                CanWriteSettings = false;
+                SettingsRecoveryNotice = "Settings need recovery. Safe defaults are shown, but the original file will not be overwritten. Copy and repair it from Open folder.";
+                return new AppSettings();
+            }
         }
+    }
+
+    private static AppSettings ReadSettings(string path)
+    {
+        var json = JToken.Parse(File.ReadAllText(path));
+        var allowed = new[] { "EyeRestIntervalMinutes", "IsEyeRestEnabled", "WeekStartsOnSunday" };
+        if (json is not JObject value || value.Properties().Any(p => !allowed.Contains(p.Name)) ||
+            value["EyeRestIntervalMinutes"]?.Type != JTokenType.Integer ||
+            value["IsEyeRestEnabled"]?.Type != JTokenType.Boolean ||
+            value["WeekStartsOnSunday"] is { Type: not JTokenType.Boolean })
+            throw new JsonException("Settings have an unsupported or incomplete format.");
+        var settings = value.ToObject<AppSettings>();
+        if (settings is not { EyeRestIntervalMinutes: >= 5 and <= 120 })
+            throw new JsonException("Reminder settings are outside the supported range.");
+        return settings;
     }
 
     public void SaveSettings(AppSettings settings)
     {
         if (settings.EyeRestIntervalMinutes is < 5 or > 120)
             throw new ArgumentOutOfRangeException(nameof(settings), "Reminder interval must be between 5 and 120 minutes.");
-        lock (_gate) WriteAtomically(_settingsPath, JsonConvert.SerializeObject(settings, Formatting.Indented));
+        lock (_gate)
+        {
+            LoadSettings();
+            if (!CanWriteSettings) throw new InvalidDataException(SettingsRecoveryNotice);
+            WriteAtomically(_settingsPath, JsonConvert.SerializeObject(settings, Formatting.Indented));
+        }
     }
 
     private static void WriteAtomically(string path, string contents)

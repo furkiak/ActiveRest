@@ -8,6 +8,7 @@ namespace ActiveRest.Views
         public MainWindow()
         {
             InitializeComponent();
+            if (Services.AppStorage.Profile.IsSeparate) Title = "ActiveRest · separate profile";
         }
 
         private async void OpenDetails_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

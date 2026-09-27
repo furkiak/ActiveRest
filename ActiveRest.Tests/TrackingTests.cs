@@ -105,6 +105,32 @@ public class TrackingTests
     }
 
     [Fact]
+    public void Engine_delete_stops_tracking_and_does_not_recreate_history_until_restart()
+    {
+        using var folder = new TestFolder();
+        var clock = new FakeClock(new DateTimeOffset(2026, 1, 4, 12, 0, 0, TimeSpan.Zero));
+        var data = new DataManager(folder.Path);
+        using var engine = new TrackerEngine(new FakeActivity(), data, clock);
+        engine.StartTracking();
+        clock.Advance(TimeSpan.FromSeconds(2));
+        engine.RecordSample();
+        engine.DeleteHistory();
+        Assert.False(engine.IsRunning);
+        Assert.Empty(data.LoadAllData());
+        Assert.False(File.Exists(System.IO.Path.Combine(folder.Path, "stats.json")));
+        Assert.False(File.Exists(System.IO.Path.Combine(folder.Path, "stats.json.bak")));
+        Assert.Equal(new DateTime(2026, 1, 4), engine.GetCurrentSnapshot().Date);
+        clock.Advance(TimeSpan.FromSeconds(2));
+        engine.RecordSample();
+        Assert.Empty(data.LoadAllData());
+        engine.StartTracking();
+        clock.Advance(TimeSpan.FromSeconds(1));
+        engine.RecordSample();
+        engine.StopTracking();
+        Assert.Equal(1, data.LoadAllData().Single().TotalFocusedSeconds, 5);
+    }
+
+    [Fact]
     public void Updated_reminder_setting_takes_effect_without_restart()
     {
         using var folder = new TestFolder();
@@ -115,7 +141,9 @@ public class TrackingTests
         engine.StartTracking();
         for (var i = 0; i < 60; i++) { clock.Advance(TimeSpan.FromSeconds(4)); engine.RecordSample(); }
         Assert.Equal(0, reminders);
-        engine.ApplySettings(new AppSettings { EyeRestIntervalMinutes = 5 });
+        var updated = new AppSettings { EyeRestIntervalMinutes = 5 };
+        new DataManager(folder.Path).SaveSettings(updated);
+        engine.ReloadSettings();
         for (var i = 0; i < 15; i++) { clock.Advance(TimeSpan.FromSeconds(4)); engine.RecordSample(); }
         Assert.Equal(1, reminders);
     }

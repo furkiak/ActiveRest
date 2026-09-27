@@ -20,6 +20,15 @@ The app opens with tracking **off**. Select **Start tracking** in the main windo
 
 There is no current public installer for this revision. A source build is the reproducible path until the Windows release package passes a clean-machine UI check. Do not interpret an older ZIP or image as this revision.
 
+For a separate disposable or portable profile, pass an absolute data directory:
+
+```powershell
+dotnet run --project ActiveRest.csproj -- --data-directory E:\ActiveRest-TestProfile
+# Or: ActiveRest.exe --data-directory E:\ActiveRest-TestProfile
+```
+
+This profile uses its own history and settings without copying the normal `%APPDATA%\ActiveRest` files. The main, Settings and report titles identify the separate profile; Settings displays its actual folder. Windows startup is disabled for it, and saving its settings cannot change the normal Run registry entry. The argument must be complete and absolute, cannot overlap the normal data directory, and cannot use linked files/folders. Invalid arguments stop startup rather than falling back to personal data. These are separate data directories, not separate OS users or a security sandbox.
+
 ## How the numbers are calculated
 
 | Display | Current rule |
@@ -36,7 +45,7 @@ ActiveRest runs locally and has no account, analytics service, or upload path in
 
 After you start tracking, daily duration totals and process names are kept in `%APPDATA%\ActiveRest\stats.json`; the previous valid write is in `stats.json.bak`. Reminder and week settings are in `settings.json`. Data remains until you delete it. The app saves about once per observed minute and on pause, day change, and exit while tracking. Merely opening and closing the app does not create a new history record. Settings → **Export JSON** copies the recorded history to a file you choose. Settings → **Delete history** stops tracking and removes the main history and backup after an in-app confirmation. Exported copies and older `.corrupt-*` recovery files are separate files; delete those from **Open folder** if you no longer need them. Normal filesystem deletion is not secure erasure on SSDs.
 
-If the main history file is malformed, ActiveRest tries the last valid backup and preserves the damaged copy with a `.corrupt-*` suffix. If neither copy is readable, tracking pauses and the app leaves both files untouched for manual recovery. See [data recovery](docs/DATA.md).
+If the main history file is malformed, ActiveRest tries the last valid backup and preserves the damaged copy with a `.corrupt-*` suffix. If neither copy is readable, tracking pauses and the app leaves both files untouched for manual recovery. A valid JSON file with unrecognized fields/format or duplicate days is also preserved; it is not silently replaced by an older backup. Delete history cannot discard unreadable history or a damaged backup. Damaged or unsupported settings show safe defaults and a recovery message; saving cannot overwrite the original. Copy, repair or move those files manually, then restart the application. See [data recovery](docs/DATA.md).
 
 ## PDF reports and limits
 
@@ -50,8 +59,10 @@ dotnet test ActiveRest.Tests/ActiveRest.Tests.csproj -c Release
 dotnet publish ActiveRest.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false
 ```
 
-The source tree includes [tests](ActiveRest.Tests/TrackingTests.cs) for midnight, sleep gaps, pause/resume, opt-in startup, changed reminder settings, week boundaries, backup recovery and deletion. The main, settings and empty-report screens were visually inspected on Windows; registry startup, tray, PDF and clean-profile checks remain release gates. See [support and release checks](docs/SUPPORT.md), [contributing](CONTRIBUTING.md), and [changelog](CHANGELOG.md). Licensed under [MIT](LICENSE).
+The source tree includes [tracking tests](ActiveRest.Tests/TrackingTests.cs) for midnight, sleep gaps, pause/resume, opt-in startup, settings reloaded from disk, week boundaries, backup recovery and deletion. [Profile/runtime tests](ActiveRest.Tests/RuntimeProfileTests.cs) check separate storage, the normal startup-entry guard, newer/damaged data preservation, a real timer with synthetic activity, culture-independent weekly view totals and direct PDF rendering. Those checks do not substitute for native UI interaction. The main, settings and empty-report screens were visually inspected on Windows; isolated native tracking/settings/export/date flows, registry startup, tray and clean-machine checks remain release gates. See [native acceptance steps](docs/NATIVE_PROFILE_CHECK.md), [support and release checks](docs/SUPPORT.md), [contributing](CONTRIBUTING.md), and [changelog](CHANGELOG.md). Licensed under [MIT](LICENSE).
 
 ## Türkçe
+
+`--data-directory E:\ActiveRest-TestProfile` ile ayrı bir deneme profili açabilirsin: geçmiş ve ayarlar yalnız seçilen klasörde kalır, kişisel veriler kopyalanmaz ve Windows başlangıç kaydı değişmez. Pencere başlığı ayrı profili belirtir. Yol tam olmalı ve normal veri klasörüyle çakışmamalıdır. Okunamayan veya yeni sürüme ait veri/ayarlar sessizce silinmez; klasörden kopyalayarak kurtarıp uygulamayı yeniden açmalısın. Ayrı profilde native takip/ayar/tarih/dışa aktarma akışı henüz ayrıca doğrulanmalıdır.
 
 ActiveRest, Windows üzerinde çalışan **yerel bir etkinlik zamanlayıcısıdır**. Gözlenen etkin süreyi, ses çıkışı varken boşta geçen süreyi ve mola süresini gösterir. Ön plandaki **işlem adını** kaydeder; pencere başlığı, tuş vuruşu, ekran görüntüsü, mikrofon veya ses içeriği toplamaz. Varsayılan veri konumu `%APPDATA%\ActiveRest` klasörüdür. Uygulama her açılışta takip kapalı başlar; ana ekrandaki **Start tracking** düğmesine basınca ölçüm başlar. Takibi duraklatabilir, Ayarlar’dan JSON dışa aktarabilir veya geçmişi onaylayarak silebilirsin. Geçmişi silmek takibi de durdurur. Bu sürüm sağlık ya da verimlilik sonucu vaat etmez. Ana ekran, ayarlar ve boş rapor gerçek Windows oturumunda kontrol edildi; takip, tepsi, PDF ve temiz kullanıcı profili testleri yayın öncesi açıktır.

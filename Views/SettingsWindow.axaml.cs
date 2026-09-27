@@ -12,14 +12,21 @@ namespace ActiveRest.Views
 {
     public partial class SettingsWindow : Window
     {
-        private readonly DataManager _dataManager = new();
-        private readonly SettingsService _startupService = new();
+        private readonly DataManager _dataManager;
+        private readonly SettingsService _startupService;
         private MainWindowViewModel? _viewModel;
         private AppSettings _settings;
         private int _currentInterval;
 
-        public SettingsWindow()
+        public SettingsWindow() : this(new DataManager(), null) { }
+
+        public SettingsWindow(MainWindowViewModel viewModel) : this(viewModel.DataStore, viewModel) { }
+
+        private SettingsWindow(DataManager dataManager, MainWindowViewModel? viewModel)
         {
+            _dataManager = dataManager;
+            _viewModel = viewModel;
+            _startupService = new SettingsService(_dataManager.Profile);
             InitializeComponent();
             _settings = _dataManager.LoadSettings();
             _currentInterval = _settings.EyeRestIntervalMinutes;
@@ -28,12 +35,21 @@ namespace ActiveRest.Views
 
             var autoStartControl = this.FindControl<CheckBox>("AutoStartCheck");
             if (autoStartControl != null)
+            {
                 autoStartControl.IsChecked = _startupService.IsAutoStartEnabled();
+                autoStartControl.IsEnabled = _startupService.CanSetAutoStart;
+            }
+            if (_dataManager.Profile.IsSeparate)
+            {
+                Title = "ActiveRest settings · separate profile";
+                this.FindControl<TextBlock>("StartupDescription")!.Text = "Unavailable for this separate profile; the normal Windows startup entry stays unchanged.";
+            }
+            this.FindControl<TextBlock>("ProfileDescription")!.Text = (_dataManager.Profile.IsSeparate
+                ? "Separate profile · " : "Data folder · ") + _dataManager.DataFolder;
             this.FindControl<CheckBox>("EyeRestCheck")!.IsChecked = _settings.IsEyeRestEnabled;
             this.FindControl<CheckBox>("SundayCheck")!.IsChecked = _settings.WeekStartsOnSunday;
+            if (_dataManager.SettingsRecoveryNotice != null) ShowFeedback(_dataManager.SettingsRecoveryNotice);
         }
-
-        public SettingsWindow(MainWindowViewModel viewModel) : this() => _viewModel = viewModel;
 
         private void Minus_Click(object? sender, RoutedEventArgs e)
         {
@@ -61,7 +77,7 @@ namespace ActiveRest.Views
                 _dataManager.SaveSettings(_settings);
                 _viewModel?.ReloadSettings();
                 var autoStartControl = this.FindControl<CheckBox>("AutoStartCheck");
-                _startupService.SetAutoStart(autoStartControl?.IsChecked ?? false);
+                if (_startupService.CanSetAutoStart) _startupService.SetAutoStart(autoStartControl?.IsChecked ?? false);
                 this.Close();
             }
             catch (Exception ex) { ShowFeedback($"Could not save all settings: {ex.Message}"); }

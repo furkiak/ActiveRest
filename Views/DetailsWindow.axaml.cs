@@ -11,6 +11,7 @@ namespace ActiveRest.Views
         public DetailsWindow()
         {
             InitializeComponent();
+            if (Services.AppStorage.Profile.IsSeparate) Title = "ActiveRest report · separate profile";
         } 
         private async void ExportToPdf_Click(object? sender, RoutedEventArgs e)
         {

@@ -100,11 +100,14 @@ public sealed class TrackerEngine : IDisposable
             _settings = new AppSettings
             {
                 EyeRestIntervalMinutes = settings.EyeRestIntervalMinutes,
-                IsEyeRestEnabled = settings.IsEyeRestEnabled
+                IsEyeRestEnabled = settings.IsEyeRestEnabled,
+                WeekStartsOnSunday = settings.WeekStartsOnSunday
             };
             if (!_settings.IsEyeRestEnabled) _focusSinceReminder = 0;
         }
     }
+
+    public void ReloadSettings() => ApplySettings(_dataManager.LoadSettings());
 
     public void SaveSnapshot()
     {
@@ -115,8 +118,9 @@ public sealed class TrackerEngine : IDisposable
     {
         lock (_gate)
         {
+            if (_running) StopTracking();
             _dataManager.DeleteAllData();
-            _currentDay = new DailyStat();
+            _currentDay = new DailyStat { Date = _clock.GetLocalNow().DateTime.Date, FirstBootTime = _clock.GetLocalNow().DateTime };
             _focusSinceReminder = 0;
             _secondsSinceSave = 0;
             ResetClock();
