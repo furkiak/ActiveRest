@@ -167,7 +167,7 @@ namespace ActiveRest.Services
             {
                 c.Item().Row(r =>
                 {
-                    r.ConstantItem(8).Height(8).AlignMiddle().Background(color);
+                    r.ConstantItem(8).AlignMiddle().Height(8).Background(color);
                     r.RelativeItem().PaddingLeft(6).Text(label).FontSize(10).FontColor(Muted);
                 });
                 c.Item().PaddingTop(6).Text(loc.FormatDuration(seconds)).FontSize(18).SemiBold();

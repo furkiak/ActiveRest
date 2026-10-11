@@ -43,7 +43,11 @@ namespace ActiveRest.Views
                 Show();
             }
 
-            if (Vm != null) Vm.IsWindowVisible = true;
+            if (Vm != null)
+            {
+                Vm.IsWindowVisible = true;
+                Vm.RefreshNow();   // numbers may be minutes old: show current ones on the very first frame
+            }
             Activate();
             DispatcherTimer.RunOnce(() => Root.Classes.Set("hidden", false), TimeSpan.FromMilliseconds(30));
         }

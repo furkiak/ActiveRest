@@ -142,6 +142,13 @@ namespace ActiveRest.ViewModels
             TogglePause();
         }
 
+        /// <summary>Recomputes everything immediately (used when the window is shown after being hidden).</summary>
+        public void RefreshNow()
+        {
+            UpdateStatus();
+            RefreshLive();
+        }
+
         // ================= tick =================
 
         /// <summary>Called by the host about once a second, after the engine ticked.</summary>

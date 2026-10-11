@@ -6,7 +6,7 @@
         x:Class="ActiveRest.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
         Title="ActiveRest"
-        Width="436" Height="800"
+        Width="436" Height="880"
         CanResize="False"
         SystemDecorations="None"
         Background="Transparent"
