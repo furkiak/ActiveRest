@@ -16,14 +16,19 @@ namespace ActiveRest.Services
     /// </summary>
     public sealed class DataManager
     {
-        private readonly object _gate = new();
+        private readonly object _gate = new();        // guards the in-memory cache
+        private readonly object _writeGate = new();    // serialises disk writes (background flush vs. flush on exit)
         private readonly string _filePath;
         private readonly string _backupPath;
         private Dictionary<DateTime, DailyStat>? _cache;
         private bool _dirty;
         private int _flushRunning;
+        private int _writeFailures;
 
         public string DataFolder { get; }
+
+        /// <summary>Number of failed disk writes since start (exposed for tests and diagnostics).</summary>
+        internal int WriteFailures => Volatile.Read(ref _writeFailures);
 
         public DataManager(string? dataFolder = null)
         {
@@ -71,22 +76,28 @@ namespace ActiveRest.Services
         /// <summary>Writes pending changes to disk synchronously.</summary>
         public void Flush()
         {
-            string json;
-            lock (_gate)
+            // Lock order is always _writeGate -> _gate. Without the write gate, a periodic background flush and
+            // the final flush on exit could both write the same temp file and the latest data could be lost.
+            lock (_writeGate)
             {
-                if (!_dirty || _cache == null) return;
-                json = JsonConvert.SerializeObject(_cache.Values.OrderBy(d => d.Date).ToList(), Formatting.Indented);
-                _dirty = false;
-            }
+                string json;
+                lock (_gate)
+                {
+                    if (!_dirty || _cache == null) return;
+                    json = JsonConvert.SerializeObject(_cache.Values.OrderBy(d => d.Date).ToList(), Formatting.Indented);
+                    _dirty = false;
+                }
 
-            try
-            {
-                AtomicFile.Write(_filePath, json, _backupPath);
-            }
-            catch (Exception ex)
-            {
-                lock (_gate) _dirty = true;
-                Logger.Error("Saving statistics failed", ex);
+                try
+                {
+                    AtomicFile.Write(_filePath, json, _backupPath);
+                }
+                catch (Exception ex)
+                {
+                    lock (_gate) _dirty = true;
+                    Interlocked.Increment(ref _writeFailures);
+                    Logger.Error("Saving statistics failed", ex);
+                }
             }
         }
 

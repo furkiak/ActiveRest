@@ -121,6 +121,34 @@ namespace ActiveRest.Tests
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task Concurrent_upserts_and_flushes_keep_the_file_valid()
+        {
+            using var tmp = new TempFolder();
+            var dm = new DataManager(tmp.Path);
+
+            var tasks = Enumerable.Range(0, 8).Select(worker => System.Threading.Tasks.Task.Run(() =>
+            {
+                for (int i = 0; i < 40; i++)
+                {
+                    dm.Upsert(Sample(new DateTime(2026, 10, 5), worker * 1000 + i));
+                    dm.Flush();
+                }
+            })).ToArray();
+            await System.Threading.Tasks.Task.WhenAll(tasks);
+
+            Assert.Equal(0, dm.WriteFailures);   // overlapping writers used to collide on the temp file
+
+            // The final state, whatever it is, must be on disk and readable.
+            dm.Upsert(Sample(new DateTime(2026, 10, 6), 4242));
+            dm.Flush();
+
+            var reloaded = new DataManager(tmp.Path);
+            Assert.Equal(4242, reloaded.GetDay(new DateTime(2026, 10, 6))!.TotalFocusedSeconds);
+            Assert.NotNull(reloaded.GetDay(new DateTime(2026, 10, 5)));
+            Assert.DoesNotContain(Directory.GetFiles(tmp.Path), f => Path.GetFileName(f).StartsWith("stats.corrupt-"));
+        }
+
+        [Fact]
         public void Settings_are_clamped_and_persisted()
         {
             using var tmp = new TempFolder();
