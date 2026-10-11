@@ -1,0 +1,25 @@
+## .NET / Visual Studio
+bin/
+obj/
+publish/
+artifacts/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+*.log
+TestResults/
+*.pdf
+!docs/**/*.pdf
+
+## Packages
+*.nupkg
+*.snupkg
+
+## OS
+.DS_Store
+Thumbs.db
+Desktop.ini
