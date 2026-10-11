@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ActiveRest.ViewModels"
+        xmlns:loc="using:ActiveRest.Localization"
+        xmlns:ctl="using:ActiveRest.Views.Controls"
+        x:Class="ActiveRest.Views.ToastWindow"
+        x:DataType="vm:ToastViewModel"
+        Title="ActiveRest"
+        Width="388"
+        SizeToContent="Height"
+        CanResize="False"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        Topmost="True"
+        ShowActivated="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="Manual">
+
+    <Window.Styles>
+        <Style Selector="Border#Root">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.25"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.35" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border#Root.hidden">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="RenderTransform" Value="translateX(24px)"/>
+        </Style>
+    </Window.Styles>
+
+    <Border x:Name="Root" Classes="windowRoot hidden" CornerRadius="28">
+        <Grid>
+            <ctl:AuroraBackground/>
+            <Grid ColumnDefinitions="Auto,*" Margin="18">
+                <Grid Width="68" Height="68" VerticalAlignment="Top">
+                    <Ellipse Width="68" Height="68" Stroke="{DynamicResource SubtleFillBrush}" StrokeThickness="6"/>
+                    <Arc Width="68" Height="68" StartAngle="-90" SweepAngle="{Binding Sweep}" StrokeThickness="6" StrokeLineCap="Round"
+                         Stroke="{DynamicResource FocusRingBrush}"/>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="-2">
+                        <TextBlock Text="{Binding SecondsLeft}" Classes="h1 num" HorizontalAlignment="Center"/>
+                        <Path Classes="glyph" Data="{StaticResource IconEye}" Width="11" Height="11" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="10">
+                    <StackPanel Spacing="3">
+                        <TextBlock Text="{loc:T toast.title}" Classes="h1"/>
+                        <TextBlock Text="{loc:T toast.body}" Classes="cap" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Classes="accent" Command="{Binding DismissCommand}" Padding="16,8" CornerRadius="14" FontSize="12.5">
+                            <TextBlock Text="{loc:T toast.dismiss}"/>
+                        </Button>
+                        <Button Classes="glass" Command="{Binding SnoozeCommand}" Padding="14,8" CornerRadius="14" FontSize="12.5">
+                            <TextBlock Text="{loc:T toast.snooze}"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

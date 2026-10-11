@@ -1,29 +1,28 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:ActiveRest.Converters"
              x:Class="ActiveRest.App"
-             xmlns:local="using:ActiveRest"
              RequestedThemeVariant="Default">
-           
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
-  
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Styles/Icons.axaml"/>
+                <ResourceInclude Source="/Styles/Theme.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:HueBrushConverter x:Key="HueStrong" Saturation="0.65" Lightness="0.58" Alpha="255"/>
+            <conv:HueBrushConverter x:Key="HueSoft" Saturation="0.70" Lightness="0.55" Alpha="48"/>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
-        <FluentTheme />
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light" Accent="#007AFF" RegionColor="#F2F2F7" ErrorText="#D70015"/>
+                <ColorPaletteResources x:Key="Dark" Accent="#0A84FF" RegionColor="#1C1C1E" ErrorText="#FF6961"/>
+            </FluentTheme.Palettes>
+        </FluentTheme>
+        <StyleInclude Source="/Styles/Controls.axaml"/>
     </Application.Styles>
-
-<TrayIcon.Icons>
-    <TrayIcons>
-      <TrayIcon Icon="/Assets/avalonia-logo.ico" ToolTipText="ActiveRest Çalýþýyor" Clicked="TrayIcon_Clicked">
-     <TrayIcon.Menu>
-        <NativeMenu>
-          <NativeMenuItem Header="Open the Application" Click="TrayShow_Click" />
-          <NativeMenuItemSeparator />
-          <NativeMenuItem Header="Safe Exit" Click="TrayExit_Click" />
-        </NativeMenu>
-      </TrayIcon.Menu>
-      </TrayIcon>
-    </TrayIcons>
-  </TrayIcon.Icons>
-
 </Application>

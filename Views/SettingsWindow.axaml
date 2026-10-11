@@ -1,93 +1,150 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ActiveRest.ViewModels"
+        xmlns:loc="using:ActiveRest.Localization"
+        xmlns:ctl="using:ActiveRest.Views.Controls"
         x:Class="ActiveRest.Views.SettingsWindow"
-        Title="Settings" Width="360" Height="420"
+        x:DataType="vm:SettingsViewModel"
+        Title="ActiveRest"
+        Width="436" Height="800"
+        CanResize="False"
         SystemDecorations="None"
         Background="Transparent"
         TransparencyLevelHint="Transparent"
         WindowStartupLocation="CenterOwner"
-        RequestedThemeVariant="Light"
-        FontFamily="Segoe UI, Arial, sans-serif">
+        ShowInTaskbar="False"
+        Icon="/Assets/ActiveRest.ico"
+        KeyDown="OnKeyDown">
 
-    <Window.Styles>
-        <Style Selector="Button.CounterBtn">
-            <Setter Property="Background" Value="#E5E5EA"/><Setter Property="Foreground" Value="#1D1D1F"/>
-            <Setter Property="BorderThickness" Value="0"/><Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Width" Value="32"/><Setter Property="Height" Value="32"/>
-            <Setter Property="FontSize" Value="18"/><Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-        <Style Selector="Button.CloseBtn">
-            <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="15"/><Setter Property="Width" Value="30"/><Setter Property="Height" Value="30"/>
-        </Style>
-        <Style Selector="Button.CloseBtn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#E5E5EA"/>
-        </Style>
-    </Window.Styles>
+    <Border Classes="windowRoot">
+        <Grid>
+            <ctl:AuroraBackground/>
 
-    <Border Background="#F5F5F7" CornerRadius="16" BorderBrush="#E5E5EA" BorderThickness="1" Margin="10" BoxShadow="0 8 32 0 #20000000">
-        <Grid RowDefinitions="Auto, *, Auto" Margin="25">
-            
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Application Settings" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
-                    <TextBlock Text="Personalize your preferences" FontSize="12" Foreground="#86868B"/>
-                </StackPanel>
-                
-                <Button Grid.Column="1" Classes="CloseBtn" Click="Cancel_Click" VerticalAlignment="Top">
-                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                          Fill="#86868B" Width="18" Height="18" Stretch="Uniform"/>
-                </Button>
+            <Grid RowDefinitions="Auto,*,Auto" Margin="22,20,22,20">
+
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="Transparent" PointerPressed="OnHeaderPointerPressed" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="{loc:T settings.title}" Classes="h1"/>
+                        <TextBlock Text="{loc:T settings.subtitle}" Classes="cap" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Classes="icon" Click="Close_Click" VerticalAlignment="Top" ToolTip.Tip="{loc:T tip.close}">
+                        <Path Classes="glyph" Data="{StaticResource IconClose}" Width="14" Height="14"/>
+                    </Button>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="14" Margin="0,0,0,4">
+
+                        <!-- Appearance -->
+                        <StackPanel Spacing="7">
+                            <TextBlock Text="{loc:T settings.appearance}" Classes="cap" Margin="8,0,0,0" FontWeight="SemiBold"/>
+                            <Border Classes="glass tile" Padding="16,14">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
+                                        <TextBlock Text="{loc:T settings.language}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <ListBox Grid.Column="1" Classes="segmented" SelectedIndex="{Binding LanguageIndex, Mode=TwoWay}">
+                                            <ListBoxItem Content="{loc:T lang.auto}"/>
+                                            <ListBoxItem Content="{loc:T lang.en}"/>
+                                            <ListBoxItem Content="{loc:T lang.tr}"/>
+                                        </ListBox>
+                                    </Grid>
+                                    <Border Classes="divider"/>
+                                    <Grid ColumnDefinitions="76,*" ColumnSpacing="12">
+                                        <TextBlock Text="{loc:T settings.theme}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <ListBox Grid.Column="1" Classes="segmented" SelectedIndex="{Binding ThemeIndex, Mode=TwoWay}">
+                                            <ListBoxItem Content="{loc:T theme.system}"/>
+                                            <ListBoxItem Content="{loc:T theme.light}"/>
+                                            <ListBoxItem Content="{loc:T theme.dark}"/>
+                                        </ListBox>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Eye care -->
+                        <StackPanel Spacing="7">
+                            <TextBlock Text="{loc:T settings.eye}" Classes="cap" Margin="8,0,0,0" FontWeight="SemiBold"/>
+                            <Border Classes="glass tile" Padding="16,14">
+                                <StackPanel Spacing="10">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                        <Border Classes="chip relaxed"><Path Classes="glyph relaxed" Data="{StaticResource IconEye}"/></Border>
+                                        <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{loc:T eye.enable}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{loc:T eye.enable.desc}" Classes="micro" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        <ToggleSwitch Grid.Column="2" IsChecked="{Binding EyeEnabled, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <Border Classes="divider"/>
+                                    <StackPanel Spacing="0" IsEnabled="{Binding EyeEnabled}">
+                                        <TextBlock Text="{Binding EyeIntervalText}" Classes="cap num"/>
+                                        <Slider Minimum="5" Maximum="120" TickFrequency="5" IsSnapToTickEnabled="True"
+                                                Value="{Binding EyeInterval, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Focus -->
+                        <StackPanel Spacing="7">
+                            <TextBlock Text="{loc:T settings.focus}" Classes="cap" Margin="8,0,0,0" FontWeight="SemiBold"/>
+                            <Border Classes="glass tile" Padding="16,14">
+                                <StackPanel Spacing="10">
+                                    <StackPanel Spacing="0">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{loc:T focus.goal}" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding GoalText}" Classes="cap num"/>
+                                        </Grid>
+                                        <Slider Minimum="0.5" Maximum="16" TickFrequency="0.5" IsSnapToTickEnabled="True"
+                                                Value="{Binding GoalHours, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                    <Border Classes="divider"/>
+                                    <StackPanel Spacing="0">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{loc:T focus.idle}" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding IdleText}" Classes="cap num"/>
+                                        </Grid>
+                                        <Slider Minimum="1" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True"
+                                                Value="{Binding IdleMinutes, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- General -->
+                        <StackPanel Spacing="7">
+                            <TextBlock Text="{loc:T settings.system}" Classes="cap" Margin="8,0,0,0" FontWeight="SemiBold"/>
+                            <Border Classes="glass tile" Padding="16,14">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsStartupSupported}">
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{loc:T startup.enable}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{loc:T startup.desc}" Classes="micro"/>
+                                        </StackPanel>
+                                        <ToggleSwitch Grid.Column="1" IsChecked="{Binding StartWithWindows, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <Border Classes="divider" IsVisible="{Binding IsStartupSupported}"/>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Text="{loc:T data.hint}" Classes="micro" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <Button Grid.Column="1" Classes="glass" Command="{Binding OpenDataFolderCommand}" Padding="12,8" CornerRadius="14" FontSize="12">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <Path Classes="glyph" Data="{StaticResource IconFolder}" Width="14" Height="14"/>
+                                                <TextBlock Text="{loc:T data.open}"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,12,0,0">
+                    <TextBlock Text="{Binding VersionText}" Classes="micro" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    <Button Grid.Column="1" Classes="accent" Click="Close_Click" Padding="34,11" CornerRadius="16">
+                        <TextBlock Text="{loc:T settings.done}"/>
+                    </Button>
+                </Grid>
             </Grid>
-
-            <StackPanel Grid.Row="1" Spacing="25">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="Eye Health Notice" FontSize="13" FontWeight="SemiBold" Foreground="#1D1D1F"/>
-                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
-                        <Grid ColumnDefinitions="*, Auto">
-                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
-                                <Button Classes="CounterBtn" Content="-" Click="Minus_Click"/>
-                                <Border Background="#F5F5F7" CornerRadius="8" Width="90" Height="32">
-                                    <TextBlock Name="IntervalValueText" Text="20 Minute" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold"/>
-                                </Border>
-                                <Button Classes="CounterBtn" Content="+" Click="Plus_Click"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-
-                <StackPanel Spacing="10">
-                    <TextBlock Text="System Preferences" FontSize="13" FontWeight="SemiBold" Foreground="#1D1D1F"/>
-                    <Border Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#E5E5EA" BorderThickness="1">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <TextBlock Text="Start with Windows" VerticalAlignment="Center" Foreground="#86868B" FontSize="12"/>
-                            <CheckBox Name="AutoStartCheck" Grid.Column="1" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-            </StackPanel>
-
-            <Button Grid.Row="2" Content="Save Changes" Click="Save_Click" 
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
-                    Padding="14" CornerRadius="10" FontWeight="Bold" Margin="0,10,0,0">
-                <Button.Styles>
-                    <Style Selector="Button">
-                        <Setter Property="Background" Value="#2C2C2E"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="Transitions">
-                            <Transitions>
-                                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
-                            </Transitions>
-                        </Setter>
-                    </Style>
-                    <Style Selector="Button:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#1D1D1F"/>
-                        <Setter Property="Foreground" Value="White"/>
-                    </Style>
-                </Button.Styles>
-            </Button>
-
         </Grid>
     </Border>
 </Window>
