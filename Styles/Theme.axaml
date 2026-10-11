@@ -1,0 +1,186 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+
+        <!-- ============ DARK ============ -->
+        <ResourceDictionary x:Key="Dark">
+            <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#EB1A1D33" Offset="0"/>
+                <GradientStop Color="#EB0E1019" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="WindowRimBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#70FFFFFF" Offset="0"/>
+                <GradientStop Color="#14FFFFFF" Offset="0.5"/>
+                <GradientStop Color="#2EFFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+
+            <Color x:Key="AuroraBlue">#660A84FF</Color>
+            <Color x:Key="AuroraBlueClear">#000A84FF</Color>
+            <Color x:Key="AuroraGreen">#4030D158</Color>
+            <Color x:Key="AuroraGreenClear">#0030D158</Color>
+            <Color x:Key="AuroraViolet">#4DBF5AF2</Color>
+            <Color x:Key="AuroraVioletClear">#00BF5AF2</Color>
+
+            <LinearGradientBrush x:Key="GlassBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#2CFFFFFF" Offset="0"/>
+                <GradientStop Color="#0FFFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassRimBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#58FFFFFF" Offset="0"/>
+                <GradientStop Color="#0EFFFFFF" Offset="0.55"/>
+                <GradientStop Color="#2AFFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassHoverBrush" Color="#3AFFFFFF"/>
+            <SolidColorBrush x:Key="GlassPressedBrush" Color="#26FFFFFF"/>
+            <SolidColorBrush x:Key="SubtleFillBrush" Color="#1FFFFFFF"/>
+            <SolidColorBrush x:Key="DividerBrush" Color="#1AFFFFFF"/>
+            <SolidColorBrush x:Key="SegmentTrackBrush" Color="#26000000"/>
+            <SolidColorBrush x:Key="SegmentThumbBrush" Color="#3DFFFFFF"/>
+
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F2FFFFFF"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A6FFFFFF"/>
+            <SolidColorBrush x:Key="TextTertiaryBrush" Color="#66FFFFFF"/>
+
+            <SolidColorBrush x:Key="FocusBrush" Color="#30D158"/>
+            <SolidColorBrush x:Key="FocusTextBrush" Color="#4BE070"/>
+            <SolidColorBrush x:Key="FocusSoftBrush" Color="#2E30D158"/>
+            <SolidColorBrush x:Key="RelaxedBrush" Color="#0A84FF"/>
+            <SolidColorBrush x:Key="RelaxedTextBrush" Color="#5AA9FF"/>
+            <SolidColorBrush x:Key="RelaxedSoftBrush" Color="#2E0A84FF"/>
+            <SolidColorBrush x:Key="RestBrush" Color="#FF9F0A"/>
+            <SolidColorBrush x:Key="RestTextBrush" Color="#FFB340"/>
+            <SolidColorBrush x:Key="RestSoftBrush" Color="#2EFF9F0A"/>
+            <SolidColorBrush x:Key="PausedBrush" Color="#8E8E93"/>
+            <SolidColorBrush x:Key="DangerTextBrush" Color="#FF6961"/>
+            <LinearGradientBrush x:Key="FocusRingBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#64F0B0" Offset="0"/>
+                <GradientStop Color="#30D158" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#3D9BFF" Offset="0"/>
+                <GradientStop Color="#0A84FF" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="AccentGradientHoverBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#5BAAFF" Offset="0"/>
+                <GradientStop Color="#2B93FF" Offset="1"/>
+            </LinearGradientBrush>
+
+            <BoxShadows x:Key="CardShadow">0 8 24 0 #40000000</BoxShadows>
+            <BoxShadows x:Key="WindowShadow">0 18 48 0 #70000000</BoxShadows>
+            <BoxShadows x:Key="GlowFocusShadow">0 0 18 0 #5530D158</BoxShadows>
+
+            <!-- Fluent control tweaks -->
+            <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#30D158"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#4BDB6E"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="#28B84C"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPressed" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOn" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPointerOver" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPressed" Color="#F0F0F0"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#33FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#40FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPressed" Color="#29FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPointerOver" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPressed" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOff" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOffPointerOver" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOffPressed" Color="#F0F0F0"/>
+            <SolidColorBrush x:Key="SliderTrackFill" Color="#33FFFFFF"/>
+            <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#40FFFFFF"/>
+            <SolidColorBrush x:Key="SliderTrackFillPressed" Color="#40FFFFFF"/>
+        </ResourceDictionary>
+
+        <!-- ============ LIGHT ============ -->
+        <ResourceDictionary x:Key="Light">
+            <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#F4F6F7FD" Offset="0"/>
+                <GradientStop Color="#F4E8EBF6" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="WindowRimBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                <GradientStop Color="#33FFFFFF" Offset="0.5"/>
+                <GradientStop Color="#2A1F2A5C" Offset="1"/>
+            </LinearGradientBrush>
+
+            <Color x:Key="AuroraBlue">#5C64B5FF</Color>
+            <Color x:Key="AuroraBlueClear">#0064B5FF</Color>
+            <Color x:Key="AuroraGreen">#557CE8B0</Color>
+            <Color x:Key="AuroraGreenClear">#007CE8B0</Color>
+            <Color x:Key="AuroraViolet">#4DD9A5FF</Color>
+            <Color x:Key="AuroraVioletClear">#00D9A5FF</Color>
+
+            <LinearGradientBrush x:Key="GlassBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#C8FFFFFF" Offset="0"/>
+                <GradientStop Color="#8CFFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassRimBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                <GradientStop Color="#66FFFFFF" Offset="0.55"/>
+                <GradientStop Color="#E6FFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassHoverBrush" Color="#E0FFFFFF"/>
+            <SolidColorBrush x:Key="GlassPressedBrush" Color="#A6FFFFFF"/>
+            <SolidColorBrush x:Key="SubtleFillBrush" Color="#14000000"/>
+            <SolidColorBrush x:Key="DividerBrush" Color="#14000000"/>
+            <SolidColorBrush x:Key="SegmentTrackBrush" Color="#14000000"/>
+            <SolidColorBrush x:Key="SegmentThumbBrush" Color="#FFFFFFFF"/>
+
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E61C1C1E"/>
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#9E3C3C43"/>
+            <SolidColorBrush x:Key="TextTertiaryBrush" Color="#593C3C43"/>
+
+            <SolidColorBrush x:Key="FocusBrush" Color="#34C759"/>
+            <SolidColorBrush x:Key="FocusTextBrush" Color="#248A3D"/>
+            <SolidColorBrush x:Key="FocusSoftBrush" Color="#2634C759"/>
+            <SolidColorBrush x:Key="RelaxedBrush" Color="#007AFF"/>
+            <SolidColorBrush x:Key="RelaxedTextBrush" Color="#0062CC"/>
+            <SolidColorBrush x:Key="RelaxedSoftBrush" Color="#26007AFF"/>
+            <SolidColorBrush x:Key="RestBrush" Color="#FF9500"/>
+            <SolidColorBrush x:Key="RestTextBrush" Color="#B25E00"/>
+            <SolidColorBrush x:Key="RestSoftBrush" Color="#26FF9500"/>
+            <SolidColorBrush x:Key="PausedBrush" Color="#8E8E93"/>
+            <SolidColorBrush x:Key="DangerTextBrush" Color="#D70015"/>
+            <LinearGradientBrush x:Key="FocusRingBrush" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#5BE08A" Offset="0"/>
+                <GradientStop Color="#2CB84F" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#3D9BFF" Offset="0"/>
+                <GradientStop Color="#007AFF" Offset="1"/>
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="AccentGradientHoverBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#5BAAFF" Offset="0"/>
+                <GradientStop Color="#1A8AFF" Offset="1"/>
+            </LinearGradientBrush>
+
+            <BoxShadows x:Key="CardShadow">0 6 20 0 #1A1F2A5C</BoxShadows>
+            <BoxShadows x:Key="WindowShadow">0 18 48 0 #4D1F2A5C</BoxShadows>
+            <BoxShadows x:Key="GlowFocusShadow">0 0 14 0 #4034C759</BoxShadows>
+
+            <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#34C759"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#4CD26F"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="#2CB04F"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPressed" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOn" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPointerOver" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPressed" Color="#F0F0F0"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#29787880"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#38787880"/>
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPressed" Color="#33787880"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPointerOver" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPressed" Color="Transparent"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOff" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOffPointerOver" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOffPressed" Color="#F0F0F0"/>
+            <SolidColorBrush x:Key="SliderTrackFill" Color="#29787880"/>
+            <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#38787880"/>
+            <SolidColorBrush x:Key="SliderTrackFillPressed" Color="#38787880"/>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

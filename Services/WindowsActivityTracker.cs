@@ -1,96 +1,135 @@
-﻿using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Versioning;
 
 namespace ActiveRest.Services
 {
- 
-        public class WindowsActivityTracker : IActivityTracker
-    { 
+    /// <summary>Win32 implementation: input idle time, foreground process and audio activity.</summary>
+    [SupportedOSPlatform("windows")]
+    public sealed class WindowsActivityTracker : IActivityTracker, IDisposable
+    {
+        private const float AudioPeakThreshold = 0.005f;
+        private static readonly TimeSpan DeviceRefreshInterval = TimeSpan.FromSeconds(30);
+        private const int MaxCachedProcesses = 256;
+
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
+        [StructLayout(LayoutKind.Sequential)]
+        private struct LASTINPUTINFO
+        {
+            public uint cbSize;
+            public uint dwTime;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        private readonly Dictionary<uint, string> _processNames = new();
+        private MMDeviceEnumerator? _enumerator;
+        private MMDevice? _device;
+        private DateTime _deviceAcquiredAt = DateTime.MinValue;
+
+        public double GetIdleTimeSeconds()
+        {
+            try
+            {
+                var info = new LASTINPUTINFO { cbSize = (uint)Marshal.SizeOf<LASTINPUTINFO>() };
+                if (GetLastInputInfo(ref info))
+                {
+                    // Both counters wrap at 2^32 ms; unsigned subtraction stays correct across the wrap.
+                    uint idleMs = unchecked((uint)Environment.TickCount - info.dwTime);
+                    return idleMs / 1000.0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Idle time query failed", ex);
+            }
+            return 0;
+        }
+
         public string GetActiveAppName()
         {
             try
             {
-                IntPtr hWnd = GetForegroundWindow(); 
+                IntPtr hWnd = GetForegroundWindow();
                 if (hWnd == IntPtr.Zero) return "System Idle";
-                 
-                GetWindowThreadProcessId(hWnd, out uint processId);
-                var process = System.Diagnostics.Process.GetProcessById((int)processId);
-                 
-                string appName = process.ProcessName;
-                if (string.IsNullOrEmpty(appName)) return "Unknown";
 
-                return char.ToUpper(appName[0]) + appName.Substring(1);
+                GetWindowThreadProcessId(hWnd, out uint processId);
+                if (processId == 0) return "Unknown";
+
+                if (_processNames.TryGetValue(processId, out var cached)) return cached;
+
+                string name = ResolveProcessName(processId);
+                if (_processNames.Count >= MaxCachedProcesses) _processNames.Clear();
+                _processNames[processId] = name;
+                return name;
             }
             catch
             {
                 return "Unknown";
             }
         }
-        [StructLayout(LayoutKind.Sequential)]
-            struct LASTINPUTINFO
+
+        private static string ResolveProcessName(uint processId)
+        {
+            try
             {
-                public static readonly int SizeOf = Marshal.SizeOf(typeof(LASTINPUTINFO));
-                [MarshalAs(UnmanagedType.U4)]
-                public UInt32 cbSize;
-                [MarshalAs(UnmanagedType.U4)]
-                public UInt32 dwTime;
+                using var process = Process.GetProcessById((int)processId);
+                string name = process.ProcessName;
+                return string.IsNullOrEmpty(name) ? "Unknown" : char.ToUpperInvariant(name[0]) + name[1..];
             }
-
-            [DllImport("user32.dll")]
-            static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
-
-            public double GetIdleTimeSeconds()
+            catch
             {
-                try
-                {
-                    LASTINPUTINFO lastInputInfo = new LASTINPUTINFO();
-                    lastInputInfo.cbSize = (uint)LASTINPUTINFO.SizeOf;
-                    lastInputInfo.dwTime = 0;
-
-                    if (GetLastInputInfo(ref lastInputInfo))
-                    {
-                        uint envTicks = (uint)Environment.TickCount;
-                        uint lastInputTick = lastInputInfo.dwTime;
-                        uint idleTicks = envTicks - lastInputTick;
-
-                        return idleTicks / 1000.0;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error-7: {ex.Message}");
-                }
-                return 0;
+                return "Unknown";
             }
-         
-            public bool IsMediaPlaying()
-            {
-                try
-                { 
-                    using var enumerator = new MMDeviceEnumerator();
-                    using var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        }
 
-                    if (device != null)
-                    { 
-                        return device.AudioMeterInformation.MasterPeakValue > 0.005f;
-                    }
-                }
-                catch
-                { 
-                    return false;
-                }
+        public bool IsMediaPlaying()
+        {
+            try
+            {
+                var device = GetPlaybackDevice();
+                return device != null && device.AudioMeterInformation.MasterPeakValue > AudioPeakThreshold;
+            }
+            catch
+            {
+                // The default device changed or was removed; reacquire it on the next call.
+                ReleaseDevice();
                 return false;
             }
         }
+
+        private MMDevice? GetPlaybackDevice()
+        {
+            if (_device != null && DateTime.UtcNow - _deviceAcquiredAt < DeviceRefreshInterval)
+                return _device;
+
+            ReleaseDevice();
+            _enumerator ??= new MMDeviceEnumerator();
+            _device = _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+            _deviceAcquiredAt = DateTime.UtcNow;
+            return _device;
+        }
+
+        private void ReleaseDevice()
+        {
+            _device?.Dispose();
+            _device = null;
+        }
+
+        public void Dispose()
+        {
+            ReleaseDevice();
+            _enumerator?.Dispose();
+            _enumerator = null;
+        }
     }
+}

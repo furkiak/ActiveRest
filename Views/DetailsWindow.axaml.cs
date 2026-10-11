@@ -1,10 +1,10 @@
 using ActiveRest.ViewModels;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using System;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace ActiveRest.Views
 {
@@ -13,33 +13,47 @@ namespace ActiveRest.Views
         public DetailsWindow()
         {
             InitializeComponent();
-        } 
-        private void Close_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-        {
-            this.Close();
+            Opened += (_, _) => WindowPlacement.ClampToWorkArea(this);
         }
-        private void ExportToPdf_Click(object? sender, RoutedEventArgs e)
-        {
-            if (this.DataContext is MainWindowViewModel vm)
-            {
-                try
-                {
-                    string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                    string fileName = $"ActiveRest_Report_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-                    string fullPath = Path.Combine(desktopPath, fileName);
-                     
-                    var pdfService = new ActiveRest.Services.PdfExportService();
-                    pdfService.ExportReport(vm, fullPath);
-                     
-                    Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
 
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error-10: " + ex.Message);
-                }
-            }
+        private void Close_Click(object? sender, RoutedEventArgs e) => Close();
+
+        private void OnKeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape) Close();
         }
-        
+
+        private void OnHeaderPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+                BeginMoveDrag(e);
+        }
+
+        private async void ExportPdf_Click(object? sender, RoutedEventArgs e) => await ExportAsync(ExportFormat.Pdf);
+
+        private async void ExportCsv_Click(object? sender, RoutedEventArgs e) => await ExportAsync(ExportFormat.Csv);
+
+        private async Task ExportAsync(ExportFormat format)
+        {
+            if (DataContext is not DetailsViewModel vm) return;
+
+            bool pdf = format == ExportFormat.Pdf;
+            var options = new FilePickerSaveOptions
+            {
+                Title = pdf ? "PDF" : "CSV",
+                SuggestedFileName = vm.SuggestedFileName(format),
+                DefaultExtension = pdf ? "pdf" : "csv",
+                ShowOverwritePrompt = true,
+                SuggestedStartLocation = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
+                FileTypeChoices = new[]
+                {
+                    new FilePickerFileType(pdf ? "PDF" : "CSV") { Patterns = new[] { pdf ? "*.pdf" : "*.csv" } }
+                }
+            };
+
+            var file = await StorageProvider.SaveFilePickerAsync(options);
+            string? path = file?.TryGetLocalPath();
+            if (path != null) await vm.ExportAsync(format, path);
+        }
     }
 }

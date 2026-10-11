@@ -1,138 +1,187 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ActiveRest.ViewModels"
         xmlns:models="using:ActiveRest.Models"
+        xmlns:loc="using:ActiveRest.Localization"
+        xmlns:ctl="using:ActiveRest.Views.Controls"
         x:Class="ActiveRest.Views.DetailsWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Title="Detailed Analysis"
-        Width="460" Height="620"
+        x:DataType="vm:DetailsViewModel"
+        Title="ActiveRest"
+        Width="456" Height="760"
+        CanResize="False"
         SystemDecorations="None"
         Background="Transparent"
         TransparencyLevelHint="Transparent"
         WindowStartupLocation="CenterOwner"
-        RequestedThemeVariant="Light"
-        FontFamily="Segoe UI, Ubuntu, Arial">
+        ShowInTaskbar="False"
+        Icon="/Assets/ActiveRest.ico"
+        KeyDown="OnKeyDown">
 
-    <Border Background="#F5F5F7" 
-            CornerRadius="16" 
-            BorderBrush="#E5E5EA" 
-            BorderThickness="1" 
-            Margin="10" 
-            BoxShadow="0 8 32 0 #20000000">
-        
-        <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="25">
-            
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,20">
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Detailed Analysis" FontSize="20" FontWeight="Bold" Foreground="#1D1D1F"/>
-                    <TextBlock Text="Device usage summary and detailed application report" FontSize="12" Foreground="#86868B"/>
-                </StackPanel>
+    <Border Classes="windowRoot">
+        <Grid>
+            <ctl:AuroraBackground/>
 
-                <Button Grid.Column="1" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Click="Close_Click">
-                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                          Fill="#86868B" Width="18" Height="18" Stretch="Uniform"/>
-                    <Button.Styles>
-                        <Style Selector="Button:pointerover /template/ ContentPresenter">
-                            <Setter Property="Background" Value="#E5E5EA"/>
-                        </Style>
-                    </Button.Styles>
-                </Button>
-            </Grid>
+            <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="22,20,22,20">
 
-            <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="12" Padding="20" Margin="0,0,0,15" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
-                <StackPanel Spacing="15">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <TextBlock Grid.Column="0" Text="Total Session Duration" FontWeight="SemiBold" Foreground="#86868B"/>
-                        <TextBlock Grid.Column="1" Text="{Binding TotalUptimeText}" FontWeight="Bold" FontSize="14" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                    </Grid>
-
-                    <Border CornerRadius="6" Height="12" ClipToBounds="True">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="{Binding ChartFocusWidth}" />
-                                <ColumnDefinition Width="{Binding ChartRelaxWidth}" />
-                                <ColumnDefinition Width="{Binding ChartBreakWidth}" />
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="#2C2C2E" /> 
-                            <Border Grid.Column="1" Background="#8E8E93" /> 
-                            <Border Grid.Column="2" Background="#D1D1D6" /> 
-                        </Grid>
-                    </Border>
-
-                    <StackPanel Spacing="10" Margin="0,5,0,0">
-                        <Grid ColumnDefinitions="Auto, *, Auto">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
-                                <Ellipse Width="10" Height="10" Fill="#2C2C2E" VerticalAlignment="Center"/>
-                                <TextBlock Text="Focused Work" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="{Binding FocusStatText}" Foreground="#86868B" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto, *, Auto">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
-                                <Ellipse Width="10" Height="10" Fill="#8E8E93" VerticalAlignment="Center"/>
-                                <TextBlock Text="Comfortable Working" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="{Binding RelaxStatText}" Foreground="#86868B" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                        </Grid>
-                        <Grid ColumnDefinitions="Auto, *, Auto">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Grid.Column="0">
-                                <Ellipse Width="10" Height="10" Fill="#D1D1D6" VerticalAlignment="Center"/>
-                                <TextBlock Text="Rest" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="{Binding BreakStatText}" Foreground="#86868B" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                        </Grid>
+                <!-- Header -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Background="Transparent" PointerPressed="OnHeaderPointerPressed">
+                    <StackPanel>
+                        <TextBlock Text="{loc:T details.title}" Classes="h1"/>
+                        <TextBlock Text="{Binding Main.ReportTitle}" Classes="cap" Margin="0,2,0,0"/>
                     </StackPanel>
+                    <Button Grid.Column="1" Classes="icon" Click="Close_Click" VerticalAlignment="Top" ToolTip.Tip="{loc:T tip.close}">
+                        <Path Classes="glyph" Data="{StaticResource IconClose}" Width="14" Height="14"/>
+                    </Button>
+                </Grid>
+
+                <!-- Distribution -->
+                <Border Grid.Row="1" Classes="glass" Padding="18" Margin="0,16,0,12">
+                    <StackPanel Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{loc:T details.total}" Classes="cap" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Main.TrackedText}" Classes="h1 num"/>
+                        </Grid>
+
+                        <Border Height="12" CornerRadius="6" ClipToBounds="True" Background="{DynamicResource SubtleFillBrush}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{Binding Main.FocusColumn}"/>
+                                    <ColumnDefinition Width="{Binding Main.RelaxedColumn}"/>
+                                    <ColumnDefinition Width="{Binding Main.RestColumn}"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="{DynamicResource FocusBrush}"/>
+                                <Border Grid.Column="1" Background="{DynamicResource RelaxedBrush}"/>
+                                <Border Grid.Column="2" Background="{DynamicResource RestBrush}"/>
+                            </Grid>
+                        </Border>
+
+                        <StackPanel Spacing="9">
+                            <Grid ColumnDefinitions="Auto,*,Auto,52">
+                                <Ellipse Width="9" Height="9" Fill="{DynamicResource FocusBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{loc:T mode.focus}" Margin="10,0,0,0" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Main.FocusTimeText}" Classes="cap num"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Main.FocusPercentText}" Classes="cap num" TextAlignment="Right"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*,Auto,52">
+                                <Ellipse Width="9" Height="9" Fill="{DynamicResource RelaxedBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{loc:T mode.relaxed}" Margin="10,0,0,0" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Main.RelaxedTimeText}" Classes="cap num"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Main.RelaxedPercentText}" Classes="cap num" TextAlignment="Right"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*,Auto,52">
+                                <Ellipse Width="9" Height="9" Fill="{DynamicResource RestBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{loc:T mode.rest}" Margin="10,0,0,0" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Main.RestTimeText}" Classes="cap num"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Main.RestPercentText}" Classes="cap num" TextAlignment="Right"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Highlights -->
+                <Grid Grid.Row="2" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10" Margin="0,0,0,12">
+                    <Border Classes="glass tile" Padding="14,12">
+                        <StackPanel Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Path Classes="glyph focus" Data="{StaticResource IconChart}" Width="13" Height="13"/>
+                                <TextBlock Text="{loc:T insight.peak}" Classes="cap"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Main.PeakHourText}" Classes="h2 num"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Classes="glass tile" Padding="14,12">
+                        <StackPanel Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Path Classes="glyph relaxed" Data="{StaticResource IconTimer}" Width="13" Height="13"/>
+                                <TextBlock Text="{loc:T insight.longest}" Classes="cap"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Main.LongestFocusText}" Classes="h2 num"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="1" Classes="glass tile" Padding="14,12">
+                        <StackPanel Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Path Classes="glyph rest" Data="{StaticResource IconApps}" Width="13" Height="13"/>
+                                <TextBlock Text="{loc:T insight.top}" Classes="cap"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Main.TopAppText}" Classes="h2" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Classes="glass tile" Padding="14,12">
+                        <StackPanel Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Path Classes="glyph" Data="{StaticResource IconClock}" Width="13" Height="13"/>
+                                <TextBlock Text="{Binding Main.FourthInsightLabel}" Classes="cap"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Main.FourthInsightText}" Classes="h2 num"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Applications -->
+                <Border Grid.Row="3" Classes="glass" ClipToBounds="True">
+                    <Grid RowDefinitions="Auto,*">
+                        <TextBlock Text="{loc:T details.apps}" Classes="h2" Margin="18,14,18,4"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <Panel>
+                                <ItemsControl ItemsSource="{Binding Main.AppUsageList}" Margin="18,0,18,10">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="models:AppUsageItem">
+                                            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,7">
+                                                <Border Width="34" Height="34" CornerRadius="11"
+                                                        Background="{Binding Hue, Converter={StaticResource HueSoft}}">
+                                                    <TextBlock Text="{Binding Initial}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               Foreground="{Binding Hue, Converter={StaticResource HueStrong}}"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="12,0,10,0" Spacing="6" VerticalAlignment="Center">
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <TextBlock Text="{Binding AppName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding DurationText}" Classes="cap num" Margin="8,0,0,0"/>
+                                                    </Grid>
+                                                    <ProgressBar Classes="capsule" Value="{Binding Fraction}"
+                                                                 Foreground="{Binding Hue, Converter={StaticResource HueStrong}}"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="2" Text="{Binding PercentageText}" Classes="cap num" Width="42"
+                                                           TextAlignment="Right" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{loc:T details.apps.empty}" Classes="cap" HorizontalAlignment="Center" Margin="0,30,0,0"
+                                           IsVisible="{Binding !Main.HasApps}"/>
+                            </Panel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Export -->
+                <StackPanel Grid.Row="4" Spacing="10" Margin="0,14,0,0">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Classes="accent" Click="ExportPdf_Click" IsEnabled="{Binding !IsBusy}" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <Path Classes="glyph" Data="{StaticResource IconFile}" Fill="White"/>
+                                <TextBlock Text="{loc:T export.pdf}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="1" Classes="glass" Click="ExportCsv_Click" IsEnabled="{Binding !IsBusy}" HorizontalAlignment="Stretch" CornerRadius="18" Padding="18,13">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <Path Classes="glyph" Data="{StaticResource IconTable}"/>
+                                <TextBlock Text="{loc:T export.csv}"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasStatus}">
+                        <TextBlock Text="{Binding StatusText}" Classes="cap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Classes="plain" Command="{Binding RevealCommand}" IsVisible="{Binding CanReveal}"
+                                Padding="10,4" FontSize="12">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Path Classes="glyph relaxed" Data="{StaticResource IconFolder}" Width="13" Height="13"/>
+                                <TextBlock Text="{loc:T export.show}" Foreground="{DynamicResource RelaxedTextBrush}"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
                 </StackPanel>
-            </Border>
-
-            <Border Grid.Row="2" Background="#FFFFFF" CornerRadius="12" BorderBrush="#E5E5EA" BorderThickness="1" BoxShadow="0 4 15 0 #05000000">
-                <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding AppUsageList}" Margin="15,10">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="models:AppUsageItem">
-                                <Border BorderBrush="#F5F5F7" BorderThickness="0,0,0,1" Padding="0,10">
-                                    <Grid ColumnDefinitions="*, Auto, Auto">
-                                        <StackPanel Orientation="Horizontal" Grid.Column="0" Spacing="10">
-                                            <TextBlock Text="▪" Foreground="#D1D1D6" VerticalAlignment="Center" FontSize="16"/>
-                                            <TextBlock Text="{Binding AppName}" FontWeight="SemiBold" Foreground="#1D1D1F" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding DurationText}" Foreground="#2C2C2E" FontWeight="Bold" FontSize="12" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <Border Grid.Column="2" Background="#F5F5F7" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding PercentageText}" Foreground="#86868B" FontSize="11" FontWeight="Bold"/>
-                                        </Border>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Border>
-
-            <Grid Grid.Row="3" ColumnDefinitions="*" Margin="0,20,0,0">
-                <Button Content="Create PDF Report 📄" Click="ExportToPdf_Click" 
-                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
-                        Padding="14" CornerRadius="10" FontWeight="Bold" FontSize="13">
-                    <Button.Styles>
-                        <Style Selector="Button">
-                            <Setter Property="Background" Value="#F5F5F7"/>
-                            <Setter Property="Foreground" Value="#1D1D1F"/>
-                            <Setter Property="BorderBrush" Value="#E5E5EA"/>
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="Transitions">
-                                <Transitions>
-                                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
-                                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
-                                </Transitions>
-                            </Setter>
-                        </Style>
-                        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                            <Setter Property="Background" Value="#2C2C2E"/>
-                            <Setter Property="Foreground" Value="#FFFFFF"/>
-                        </Style>
-                    </Button.Styles>
-                </Button>
             </Grid>
-
         </Grid>
     </Border>
 </Window>
