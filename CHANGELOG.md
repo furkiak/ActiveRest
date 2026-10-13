@@ -16,7 +16,8 @@ A full review of the code base: bugs fixed, the architecture reworked, new featu
 - **Midnight rollover lost up to a minute** of the previous day because it switched days without saving first; the day is now saved before switching.
 - **Interface text.** "Moon" instead of "Month", a Turkish "Tarih Filtresi" label in the English UI, a garbled tray tooltip, `%62` percentages in English and `g/s/d` duration units.
 - **Date picker reset the view mode.** Picking a date always switched back to the day view; the date now applies to the selected period.
-- **Auto-start** used a hard-coded executable path and opened the full window at every login; it now uses the real process path and starts quietly in the tray.
+- **Auto-start** used a hard-coded executable path and opened the full window at every login; it now uses the real process path, starts quietly in the tray and repairs its entry when the executable is moved or replaced.
+- **CSV formula injection.** Cells starting with `-`, a tab or a carriage return were not neutralised; every OWASP trigger character is now covered.
 - **Closing the window ended the application.** It now hides to the tray; only *Quit* exits.
 - **Several instances** could run at once, double-counting time and fighting over the data file. A single-instance guard prevents it.
 - **PDF export** froze the UI while it rendered, labelled every report with today's date whatever period was shown, depended on the view model and reported errors only to the console. It now runs in the background, is titled with the selected period and shows the result.
@@ -28,7 +29,8 @@ A full review of the code base: bugs fixed, the architecture reworked, new featu
 - `StatsAggregator` / `ReportBuilder` are pure functions; exporters depend on a report model, not on a view model.
 - Platform abstraction for the tracker (`WindowsActivityTracker`, `NullActivityTracker`), `[SupportedOSPlatform]` guards instead of warnings.
 - Runtime localization (EN/TR) with a `{loc:T Key}` markup extension, theme tokens instead of hard-coded colours, shared icon geometry.
-- 41 unit tests, a headless UI smoke test, CI, a solution file and a `.gitignore`.
+- 50 unit tests, a headless UI smoke test, CI, a solution file and a `.gitignore`.
+- A release workflow: pushing a `v*` tag publishes a self-contained single-file executable (nothing to install) and a small framework-dependent one, with checksums.
 - Updated Avalonia to 11.3, CommunityToolkit.Mvvm to 8.4 and QuestPDF to 2026.9; reduced NAudio to the Wasapi package.
 
 ### New

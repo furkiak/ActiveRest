@@ -53,7 +53,7 @@ jobs:
       - name: Publish
         run: >
           dotnet publish ActiveRest.csproj -c Release -r win-x64 --self-contained false
-          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true -o publish
 
       - uses: actions/upload-artifact@v4
         with:

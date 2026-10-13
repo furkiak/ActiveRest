@@ -31,6 +31,34 @@ namespace ActiveRest.Services
             catch (Exception ex) { Logger.Error("Cannot change the auto-start setting", ex); }
         }
 
+        /// <summary>
+        /// Keeps an existing auto-start entry pointing at the running executable, so moving or updating the app
+        /// does not leave a dead entry behind. Does nothing when auto-start is off.
+        /// </summary>
+        public void RepairIfMoved()
+        {
+            if (!OperatingSystem.IsWindows()) return;
+            try
+            {
+                string expected = BuildCommand(CurrentExecutable());
+                using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RunKeyPath, true);
+                if (key?.GetValue(AppName) is string registered && !string.Equals(registered, expected, StringComparison.OrdinalIgnoreCase))
+                {
+                    key.SetValue(AppName, expected);
+                    Logger.Info("Auto-start entry updated to the current executable path.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Cannot check the auto-start entry", ex);
+            }
+        }
+
+        internal static string BuildCommand(string exe) => $"\"{exe}\" {MinimizedArgument}";
+
+        private static string CurrentExecutable() =>
+            Environment.ProcessPath ?? System.IO.Path.Combine(AppContext.BaseDirectory, "ActiveRest.exe");
+
         [SupportedOSPlatform("windows")]
         private static bool ReadEnabled()
         {
@@ -45,14 +73,9 @@ namespace ActiveRest.Services
             if (key == null) return;
 
             if (enable)
-            {
-                string exe = Environment.ProcessPath ?? System.IO.Path.Combine(AppContext.BaseDirectory, "ActiveRest.exe");
-                key.SetValue(AppName, $"\"{exe}\" {MinimizedArgument}");
-            }
+                key.SetValue(AppName, BuildCommand(CurrentExecutable()));
             else
-            {
                 key.DeleteValue(AppName, false);
-            }
         }
     }
 }

@@ -40,10 +40,11 @@ namespace ActiveRest.Services
 
         private static string Seconds(double value) => ((long)Math.Round(value)).ToString(CultureInfo.InvariantCulture);
 
-        private static string Escape(string cell, char sep)
+        internal static string Escape(string cell, char sep)
         {
-            // Neutralise spreadsheet formula injection from process names and quote cells that need it.
-            if (cell.Length > 0 && cell[0] is '=' or '+' or '@') cell = "'" + cell;
+            // Neutralise spreadsheet formula injection from process names (OWASP: = + - @ tab CR) and quote cells that need it.
+            // Only text cells pass through here; numbers are formatted separately and are never negative.
+            if (cell.Length > 0 && cell[0] is '=' or '+' or '-' or '@' or '\t' or '\r') cell = "'" + cell;
             if (cell.IndexOfAny(new[] { sep, '"', '\n', '\r' }) >= 0)
                 cell = "\"" + cell.Replace("\"", "\"\"") + "\"";
             return cell;

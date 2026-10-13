@@ -1,0 +1,81 @@
+name: Release
+
+# Publishes a GitHub release when a version tag (for example v2.0.0) is pushed.
+# The tag must match <Version> in ActiveRest.csproj; the notes are the matching section of CHANGELOG.md.
+
+on:
+  push:
+    tags: [ "v*" ]
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  AVALONIA_TELEMETRY_OPTOUT: 1
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Check the tag against the project version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$project = Get-Content ActiveRest.csproj
+          $version = $project.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if ("v$version" -ne $env:GITHUB_REF_NAME) { throw "Tag $env:GITHUB_REF_NAME does not match <Version>$version</Version>." }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: dotnet test tests/ActiveRest.Tests -c Release
+
+      # Two builds: a self-contained one that needs nothing installed, and a small one for machines with the .NET 9 Desktop Runtime.
+      - name: Publish
+        shell: pwsh
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+          # IncludeAllContentForSelfExtract bundles QuestPDF's font file; without it PDF export needs a loose file next to the exe.
+          $common = @('ActiveRest.csproj', '-c', 'Release', '-r', 'win-x64', '-p:PublishSingleFile=true',
+                      '-p:IncludeNativeLibrariesForSelfExtract=true', '-p:IncludeAllContentForSelfExtract=true')
+          dotnet publish @common --self-contained true -p:EnableCompressionInSingleFile=true -o out/full
+          dotnet publish @common --self-contained false -o out/small
+          New-Item -ItemType Directory dist | Out-Null
+          Copy-Item out/full/ActiveRest.exe "dist/ActiveRest-$v-win-x64.exe"
+          Copy-Item out/small/ActiveRest.exe "dist/ActiveRest-$v-win-x64-framework-dependent.exe"
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - name: Start the app once
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist -Filter "*-win-x64.exe" | Select-Object -First 1
+          $app = Start-Process $exe.FullName -ArgumentList '--minimized' -PassThru
+          Start-Sleep -Seconds 15
+          if ($app.HasExited) { throw "The app exited with code $($app.ExitCode)" }
+          Stop-Process -Id $app.Id -Force
+          "The app started and kept running."
+
+      - name: Create the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+          # The CHANGELOG section of this version, without its heading.
+          $changelog = Get-Content CHANGELOG.md -Raw
+          $section = [regex]::Match($changelog, "(?ms)^## $([regex]::Escape($v))\b[^\n]*\n(.*?)(?=^## |\z)")
+          if (-not $section.Success) { throw "CHANGELOG.md has no '## $v' section." }
+          $notes = $section.Groups[1].Value.Trim()
+          $download = "**Download:** ``ActiveRest-$v-win-x64.exe`` runs on any Windows 10/11 PC. ``...-framework-dependent.exe`` is smaller and needs the [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/9.0). Windows SmartScreen may warn on first launch because the app is not code-signed: choose *More info → Run anyway*."
+          Set-Content release-notes.md -Value "$download`n$notes" -Encoding utf8
+          Push-Location dist
+          Get-ChildItem *.exe | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_ -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content SHA256SUMS.txt -Encoding ascii
+          Pop-Location
+          gh release create $env:GITHUB_REF_NAME (Get-ChildItem dist/*).FullName --title "ActiveRest $v" --notes-file release-notes.md

@@ -165,5 +165,12 @@ namespace ActiveRest.Tests
             Assert.Equal("auto", reloaded.Language);
             Assert.Equal("dark", reloaded.Theme);
         }
+
+        [Fact]
+        public void Auto_start_command_quotes_the_path_and_starts_minimized()
+        {
+            Assert.Equal("\"C:\\Program Files\\ActiveRest\\ActiveRest.exe\" --minimized",
+                StartupService.BuildCommand(@"C:\Program Files\ActiveRest\ActiveRest.exe"));
+        }
     }
 }

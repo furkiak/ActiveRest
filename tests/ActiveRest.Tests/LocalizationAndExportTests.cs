@@ -73,6 +73,26 @@ namespace ActiveRest.Tests
             Assert.Contains("Code", text);
         }
 
+        [Theory]
+        [InlineData("=SUM(A1)", "'=SUM(A1)")]
+        [InlineData("+1", "'+1")]
+        [InlineData("-2+3", "'-2+3")]
+        [InlineData("@cmd", "'@cmd")]
+        [InlineData("\tcalc", "'\tcalc")]
+        [InlineData("Code", "Code")]
+        public void Csv_cells_that_start_like_a_formula_are_prefixed(string cell, string expected)
+        {
+            Assert.Equal(expected, CsvExportService.Escape(cell, ','));
+        }
+
+        [Fact]
+        public void Csv_cells_with_separators_or_quotes_are_quoted()
+        {
+            Assert.Equal("\"a,b\"", CsvExportService.Escape("a,b", ','));
+            Assert.Equal("\"say \"\"hi\"\"\"", CsvExportService.Escape("say \"hi\"", ','));
+            Assert.Equal("a,b", CsvExportService.Escape("a,b", ';'));
+        }
+
         [Fact]
         public void Pdf_export_produces_a_valid_pdf_in_both_languages()
         {

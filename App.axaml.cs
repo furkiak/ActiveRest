@@ -47,6 +47,10 @@ namespace ActiveRest
                 };
 
                 _services = new AppServices();
+#if !DEBUG
+                // Release builds only: a debug run from source must not repoint the installed app's auto-start entry.
+                _services.Startup.RepairIfMoved();
+#endif
                 ApplyAppearance();
                 _services.Settings.Changed += ApplyAppearance;
 

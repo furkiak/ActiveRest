@@ -1,6 +1,7 @@
 # ActiveRest
 
 [![CI](https://github.com/furkiak/ActiveRest/actions/workflows/ci.yml/badge.svg)](https://github.com/furkiak/ActiveRest/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/furkiak/ActiveRest?color=30D158)](https://github.com/furkiak/ActiveRest/releases/latest)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078d7)
 ![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)
 ![UI](https://img.shields.io/badge/UI-Avalonia%2011-8b5cf6)
@@ -60,9 +61,20 @@ Once per second ActiveRest classifies your time into one of three modes:
 
 Short notification sounds do not flip Rest into Relaxed (audio must persist for a few seconds), and time during which the computer was asleep is never attributed to any mode.
 
-## Getting started
+## Download
 
-**Requirements:** Windows 10 or 11 and the [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/9.0). To build from source you need the .NET 9 SDK.
+Grab the latest build from the [Releases page](https://github.com/furkiak/ActiveRest/releases/latest) — a single executable, no installer:
+
+| File | For |
+|------|-----|
+| `ActiveRest-<version>-win-x64.exe` | Any Windows 10 / 11 PC — nothing else to install |
+| `ActiveRest-<version>-win-x64-framework-dependent.exe` | A much smaller download if the [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) is installed |
+
+The app is not code-signed, so SmartScreen may warn on the first launch: choose **More info → Run anyway**. `SHA256SUMS.txt` lists the checksums.
+
+## Building from source
+
+**Requirements:** Windows 10 or 11 and the .NET 9 SDK.
 
 ```bash
 git clone https://github.com/furkiak/ActiveRest.git
@@ -73,10 +85,11 @@ dotnet test tests/ActiveRest.Tests           # unit tests
 
 # a single-file release build for Windows
 dotnet publish ActiveRest.csproj -c Release -r win-x64 --self-contained false \
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+  -p:IncludeAllContentForSelfExtract=true -o publish
 ```
 
-The CI workflow builds and tests every push and publishes the Windows executable as a build artifact.
+The CI workflow builds and tests every push and publishes the Windows executable as a build artifact. Pushing a version tag (`v2.0.0`) runs the release workflow, which tests, builds both executables and publishes a GitHub release with the matching CHANGELOG section.
 
 The interface also starts on Linux and macOS (useful for development), but there the activity tracker is a stub that always reports "active" — real tracking uses Win32 APIs.
 
@@ -193,9 +206,20 @@ ActiveRest her saniyeyi üç moddan birine yazar:
 
 Kısa bildirim sesleri Mola'yı Rahat'a çevirmez (ses birkaç saniye sürmelidir); bilgisayarın uyku modunda geçirdiği süre hiçbir moda yazılmaz.
 
-### Kurulum
+### İndirme
 
-**Gereksinimler:** Windows 10 veya 11 ve [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/9.0). Kaynaktan derlemek için .NET 9 SDK gerekir.
+Son sürümü [Releases sayfasından](https://github.com/furkiak/ActiveRest/releases/latest) indirin — tek bir exe, kurulum yok:
+
+| Dosya | Kimin için |
+|-------|-----------|
+| `ActiveRest-<sürüm>-win-x64.exe` | Her Windows 10 / 11 bilgisayar — başka bir şey kurmanız gerekmez |
+| `ActiveRest-<sürüm>-win-x64-framework-dependent.exe` | [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/9.0) kuruluysa çok daha küçük indirme |
+
+Uygulama kod imzalı olmadığından SmartScreen ilk açılışta uyarabilir: **Ek bilgi → Yine de çalıştır** deyin. Sağlama toplamları `SHA256SUMS.txt` dosyasındadır.
+
+### Kaynaktan derleme
+
+**Gereksinimler:** Windows 10 veya 11 ve .NET 9 SDK.
 
 ```bash
 git clone https://github.com/furkiak/ActiveRest.git
@@ -206,8 +230,11 @@ dotnet test tests/ActiveRest.Tests           # birim testleri
 
 # Windows için tek dosyalık sürüm
 dotnet publish ActiveRest.csproj -c Release -r win-x64 --self-contained false \
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+  -p:IncludeAllContentForSelfExtract=true -o publish
 ```
+
+Bir sürüm etiketi (`v2.0.0`) push edildiğinde release workflow'u testleri çalıştırır, iki exe'yi derler ve CHANGELOG'daki ilgili bölümle bir GitHub sürümü yayımlar.
 
 Arayüz Linux ve macOS'ta da açılır (geliştirme için), ancak orada etkinlik takipçisi her zaman "aktif" döndüren bir taslaktır; gerçek takip Win32 API'lerini kullanır.
 
